@@ -48,26 +48,12 @@ public class RptCtntCsvWriter {
 	private RptCtntCsvWriter(){
 		
 	}
-	public boolean openFile(File csvFile){
+	public boolean openFile(File csvFile) throws IOException{
 		
 		rptFile = csvFile;
-				
-		try {
-			rptFile.createNewFile();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			System.out.println("Create files failed");
-			e1.printStackTrace();
-			return false;
-		}
-		try {
-			writer = new BufferedWriter(new FileWriter(rptFile));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Create Writer failed");
-			e.printStackTrace();
-			return false;
-		}
+		rptFile.createNewFile();		
+		writer = new BufferedWriter(new FileWriter(rptFile));
+		
 		return true;
 	}
 	private boolean writeCtnt(String dataStr) throws IOException{
@@ -75,7 +61,7 @@ public class RptCtntCsvWriter {
 		writer.newLine();
 		return false;
 	}
-	public void  writeLine(RptContent rptCtnt, Date date, Map<String,Integer> dynCtnt, int intvl) throws IOException{
+	public void  writeLine(RptContent rptCtnt, Date date, Map<String,Integer> dynCtnt, int intvl) throws IOException, ParseException{
 		String dataStr = null;
 		try {
 			if(intvl==-1)
@@ -101,6 +87,7 @@ public class RptCtntCsvWriter {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		} 
 		writeCtnt(dataStr);
 	}
@@ -152,7 +139,7 @@ public class RptCtntCsvWriter {
 			}
 		writeCtnt(dataStr);
 	}	
-	public void  writreConcurLine(Date date, int count) throws IOException{
+	public void  writreConcurLine(Date date, int count) throws IOException, ParseException{
 		String dataStr = null;
 		try {
 			dataStr = DateUtil.Dt2CSVConcurTime(date) + "," + 
@@ -164,6 +151,7 @@ public class RptCtntCsvWriter {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		} 
 		writeCtnt(dataStr);
 	}
@@ -178,13 +166,8 @@ public class RptCtntCsvWriter {
 			
 		writeCtnt(dataStr);
 	}
-	public void flushFile(){
-		try {
+	public void flushFile() throws IOException{
 			writer.flush();
 			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }
