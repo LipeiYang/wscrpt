@@ -5,9 +5,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 import com.qualicom.wscrpt.utils.DateUtil;
 import com.qualicom.wscrpt.vo.RptContent;
@@ -16,7 +20,7 @@ public class RptCtntCsvWriter {
 	
 	File rptFile;
 	BufferedWriter writer ;
-	
+	CSVPrinter printer;
 	String loc;
 	String ap_des;
 	String ap_mac;
@@ -46,125 +50,134 @@ public class RptCtntCsvWriter {
 		return instance;
 	}
 	private RptCtntCsvWriter(){
-		
+		 
 	}
 	public boolean openFile(File csvFile) throws IOException{
 		
 		rptFile = csvFile;
 		rptFile.createNewFile();		
 		writer = new BufferedWriter(new FileWriter(rptFile));
-		
+		printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
 		return true;
 	}
-	private boolean writeCtnt(String dataStr) throws IOException{
-		writer.write(dataStr);
-		writer.newLine();
-		return false;
+	private void writeCtnt(List<String> dataStr) throws IOException{
+		printer.printRecord(dataStr);
 	}
 	public void  writeLine(RptContent rptCtnt, Date date, Map<String,Integer> dynCtnt, int intvl) throws IOException, ParseException{
-		String dataStr = null;
+		List<String> csvDataList = new ArrayList<String>();
+		String dataStr;
 		try {
 			if(intvl==-1)
 				dataStr = DateUtil.Dt2CSVDay(date); 
 			 else
 				dataStr = DateUtil.Dt2CSVMinRng(date, intvl);
-			 				
-			dataStr += "," + 
-			(loc==null ? "": loc+"," ) + 
-			(ap_des==null ? "": ap_des+"," ) + 
-			(ap_mac==null ? "": ap_mac+"," ) + 	
-			(ssid==null ? "": ssid+"," ) + 			
-			String.valueOf(rptCtnt.getUserNameSet().size()) + "," +
-			String.valueOf(rptCtnt.getCallingStationIdSet().size()) + "," +
-			String.valueOf(rptCtnt.getAcctInputPackets()) + "," +
-			String.valueOf(rptCtnt.getAcctOutputPackets()) + "," +
-			String.valueOf(rptCtnt.getAcctInputOctets()) + "," +
-			String.valueOf(rptCtnt.getAcctOutputOctets()) + "," +
-			String.valueOf(rptCtnt.getAcctSessionTime());
+				 				
+			csvDataList.add(dataStr);
+			csvDataList.addAll(genCtntPrefix()); 			
+			csvDataList.add(String.valueOf(rptCtnt.getUserNameSet().size()));
+			csvDataList.add(String.valueOf(rptCtnt.getCallingStationIdSet().size()));
+			csvDataList.add(String.valueOf(rptCtnt.getAcctInputPackets()));
+			csvDataList.add(String.valueOf(rptCtnt.getAcctOutputPackets()));
+			csvDataList.add(String.valueOf(rptCtnt.getAcctInputOctets()));
+			csvDataList.add(String.valueOf(rptCtnt.getAcctOutputOctets()));
+			csvDataList.add(String.valueOf(rptCtnt.getAcctSessionTime()));
 			for(String colName : dynColmOrder){
-				dataStr += "," + String.valueOf(dynCtnt.get(colName));
+				csvDataList.add(String.valueOf(dynCtnt.get(colName)));
 			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw e;
 		} 
-		writeCtnt(dataStr);
+		writeCtnt(csvDataList);
 	}
 	public void writeHeader() throws IOException{
-		String headerStr = "";				
-		headerStr += "Time," + 
-			(loc==null ? "": "Location," ) + 
-			(ap_des==null ? "": "AP Description," ) + 
-			(ap_mac==null ? "": "AP Mac," ) + 	
-			(ssid==null ? "": "SSID," ) + 			
-			"No. of Client(Name)," +
-			"No. of Client(Mac)," +
-			"Packages In," +
-			"Packages Out," +
-			"Octets In," +
-			"Octets Out," +
-			"Session Time";
+		List<String> csvDataList = buildBasicHeader();		
+		csvDataList.add("No. of Client(Name)");
+		csvDataList.add("No. of Client(Mac)");
+		csvDataList.add("Packages In");
+		csvDataList.add("Packages Out"); 
+		csvDataList.add("Octets In");
+		csvDataList.add("Octets Out");
+		csvDataList.add("Session Time");
 		for(String colName : dynColmOrder){
-			headerStr += "," + colName;
+			csvDataList.add(colName);
 		}
-		writeCtnt(headerStr);
+		writeCtnt(csvDataList);
 	}
 	public void writeConcurHeader() throws IOException{
-		String headerStr = "";				
-		headerStr += "Time," + 
-			(loc==null ? "": "Location," ) + 
-			(ap_des==null ? "": "AP Description," ) + 
-			(ap_mac==null ? "": "AP Mac," ) + 	
-			(ssid==null ? "": "SSID," ) + 			
-			"No. of Concurrent Session/User";
-		writeCtnt(headerStr);
+		List<String> csvDataList = buildBasicHeader();		
+		csvDataList.add("No. of Concurrent Session/User");
+		writeCtnt(csvDataList);
+	}
+	private List<String> buildBasicHeader(){
+		List<String> csvDataList = new ArrayList<String>();
+		csvDataList.add("Time");
+		if(loc!=null) 
+			csvDataList.add("Location");
+		if(ap_des!=null )
+			csvDataList.add("AP Description"); 			
+		if(ap_mac!=null)
+			csvDataList.add("AP Mac"); 	
+		if(ssid!=null) 
+			csvDataList.add("SSID");
+		return csvDataList;
+	}
+	private List<String> genCtntPrefix(){
+		List<String> csvDataList = new ArrayList<String>();
+		if(loc!=null)csvDataList.add(loc);
+		if(ap_des!=null )
+			csvDataList.add(ap_des); 			
+		if(ap_mac!=null)
+			csvDataList.add(ap_mac); 	
+		if(ssid!=null)
+			csvDataList.add(ssid); 
+		return csvDataList;
+	}
+	private List<String> buildSumLinePrefix(){
+		List<String> csvDataList = new ArrayList<String>();
+		csvDataList.add("");
+		if(loc!=null) 
+			csvDataList.add("");
+		if(ap_des!=null )
+			csvDataList.add(""); 			
+		if(ap_mac!=null)
+			csvDataList.add(""); 	
+		if(ssid!=null) 
+			csvDataList.add("");
+		return csvDataList;
 	}
 	public void  writeSumLine(RptContent rptCtnt,Map<String,Integer>dynCtnt) throws IOException{
-		String dataStr = "";				
-			dataStr += "," + 
-			(loc==null ? "": "," ) + 
-			(ap_des==null ? "": "," ) + 
-			(ap_mac==null ? "": "," ) + 	
-			(ssid==null ? "": "," ) + 			
-			String.valueOf(rptCtnt.getUserNameSet().size()) + "," +
-			String.valueOf(rptCtnt.getCallingStationIdSet().size()) + "," +
-			String.valueOf(rptCtnt.getAcctInputPackets()) + "," +
-			String.valueOf(rptCtnt.getAcctOutputPackets()) + "," +
-			String.valueOf(rptCtnt.getAcctInputOctets()) + "," +
-			String.valueOf(rptCtnt.getAcctOutputOctets()) + "," +
-			String.valueOf(rptCtnt.getAcctSessionTime());
+		List<String> sumLine = buildSumLinePrefix();
+		sumLine.add(String.valueOf(rptCtnt.getUserNameSet().size()));
+		sumLine.add(String.valueOf(rptCtnt.getCallingStationIdSet().size()));
+		sumLine.add(String.valueOf(rptCtnt.getAcctInputPackets()));
+		sumLine.add(String.valueOf(rptCtnt.getAcctOutputPackets()));
+		sumLine.add(String.valueOf(rptCtnt.getAcctInputOctets()));
+		sumLine.add(String.valueOf(rptCtnt.getAcctOutputOctets()));
+		sumLine.add(String.valueOf(rptCtnt.getAcctSessionTime()));
 			for(String colName : dynColmOrder){
-				dataStr += "," + String.valueOf(dynCtnt.get(colName));
+				sumLine.add(String.valueOf(dynCtnt.get(colName)));
 			}
-		writeCtnt(dataStr);
+		writeCtnt(sumLine);
 	}	
 	public void  writreConcurLine(Date date, int count) throws IOException, ParseException{
-		String dataStr = null;
-		try {
-			dataStr = DateUtil.Dt2CSVConcurTime(date) + "," + 
-			(loc==null ? "": loc+"," ) + 
-			(ap_des==null ? "": ap_des+"," ) + 
-			(ap_mac==null ? "": ap_mac+"," ) + 	
-			(ssid==null ? "": ssid+"," ) + 
-			String.valueOf(count)+ ",";
+		List<String> csvDataList = new ArrayList<String>();
+		try {			 				
+			csvDataList.add(DateUtil.Dt2CSVConcurTime(date));
+			csvDataList.addAll(genCtntPrefix());
+			csvDataList.add(String.valueOf(count));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw e;
 		} 
-		writeCtnt(dataStr);
+		writeCtnt(csvDataList);
 	}
 	public void  writreConcurSumLine(int count) throws IOException{
-		String dataStr = null;
-			dataStr = "," + 
-			(loc==null ? "": "," ) + 
-			(ap_des==null ? "": "," ) + 
-			(ap_mac==null ? "": "," ) + 	
-			(ssid==null ? "": "," ) + 
-			String.valueOf(count)+ ",";
-			
-		writeCtnt(dataStr);
+		List<String> csvDataLine = buildSumLinePrefix();
+			csvDataLine.add(String.valueOf(count));			
+		writeCtnt(csvDataLine);
 	}
 	public void flushFile() throws IOException{
 			writer.flush();
