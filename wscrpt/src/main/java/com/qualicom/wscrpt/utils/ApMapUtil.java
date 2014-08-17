@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.qualicom.wscrpt.vo.ApInfo;
@@ -14,7 +15,9 @@ public class ApMapUtil {
 	
 	Map<String,String> csidLocList;
 
-    
+	Logger missInfoLogger = Logger.getLogger("missinfo");
+	
+	
 	public ApMapUtil(ConfigFileReader apListReader,ConfigFileReader apInfoReader){
 		Map<String,ApInfo> apInfoList;		
 		Map<String,String> apLocList;	
@@ -23,6 +26,8 @@ public class ApMapUtil {
 		csidLocList = new HashMap<String,String>();
 		apInfoList = new HashMap<String,ApInfo>();
 		apLocList = new HashMap<String,String>();
+		
+		missInfoLogger.info("Called Station Id");
 		
 		for(String key : apInfoReader.getConfigMap().keySet()){
 			List<String> apInfoCtnt = apInfoReader.getConfigMap().get(key);
@@ -58,6 +63,7 @@ public class ApMapUtil {
 	{
 		String Location = this.csidLocList.get(calledStationId);
 		if(Location == null){
+			missInfoLogger.info(calledStationId);
 			return "others";
 		}
 		else

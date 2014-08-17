@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.log4j.Logger;
 
 import com.qualicom.wscrpt.domain.AcctData;
 import com.qualicom.wscrpt.finder.AcctDataFinder;
@@ -42,7 +43,7 @@ public class CacheAcctDataPool {
 				data = AcctDataFinder.findLastOne(lastDateSuffix, acctData.getAcctUniqueId());
 			}
 			catch(Exception e){
-				
+				Logger.getLogger(CacheAcctDataPool.class).error("Failed to retrieve last acct data on date=" + lastDateSuffix+ " , UID=" + acctData.getAcctUniqueId());
 			}
 			if(data==null){
 				data = new AcctData();

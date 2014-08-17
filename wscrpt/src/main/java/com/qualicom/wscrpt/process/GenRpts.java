@@ -68,7 +68,7 @@ public class GenRpts {
 	}
 
 	ApMapUtil apMapUtil;
-	public GenRpts(String irptDate, String irptPath) {
+	public GenRpts(String irptDate, String irptPath) throws Exception {
 		
 		rptPath = irptPath;
 		writer = RptCtntCsvWriter.getInstance();
@@ -77,8 +77,10 @@ public class GenRpts {
 			rptDate = DateUtil.str2Dt(irptDate);
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
-			System.out.println("Parse Date: "+ irptDate + " failed");
+			Logger.getLogger(GenRpts.class).error("Parse Date: "+ irptDate + " failed");
 			e1.printStackTrace();
+			throw e1;
+			
 		}
 		
 		context = new ClassPathXmlApplicationContext("META-INF/spring/applicationContext.xml");
@@ -101,7 +103,7 @@ public class GenRpts {
 //			e.printStackTrace();
 //		}
 	}
-	public void buildRptTree(){
+	public void buildRptTree() throws Exception{
 		
 		Map<String,Set<RptTyp>> rptDateTypeMap = RptGenHelper.createRptDateTypeMap(rptDate);
 		// Gene RptType to Date List for help during output report
@@ -116,9 +118,12 @@ public class GenRpts {
 				try {
 					dateSet.add(DateUtil.str2Dt(date));
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					
-					e.printStackTrace();
+					Logger.getLogger(GenRpts.class).error("Parse date in buildRpt Tree failed. Date:" + date);
+					if(Logger.getLogger(GenRpts.class).isDebugEnabled())
+					{
+						e.printStackTrace();
+					}
+					throw e;
 				}
 			}
 		}
@@ -236,7 +241,7 @@ public class GenRpts {
 			
 			targetDate = DateUtils.addMinutes(targetDate,out_concur_intvl);
 		}
-		writer.writreConcurLine(null,sumConcur/(int)(24*(60.0/out_concur_intvl)));
+		writer.writreConcurSumLine(sumConcur/(int)(24*(60.0/out_concur_intvl)));
 		writer.flushFile();
 	}
 	private void outputRptNodeCtnt(Map<Date,RptContent> rptCtntMap, String outputDir,String prefix){
@@ -424,7 +429,7 @@ public class GenRpts {
 		}
 	}
 	
-	private void generateRptByDay(String date){
+	private void generateRptByDay(String date) {
 		int curRecOffset = 0;
 		List<AcctData> adList = AcctDataFinder.findAcctData(date, curRecOffset, curRecOffset+pageSize);
 		
@@ -568,7 +573,7 @@ public class GenRpts {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String rptDate = args[0];
 		String cfgPath = args[1];
 		String rptPath = args[2];
@@ -577,9 +582,7 @@ public class GenRpts {
 		System.setProperty("cfgfile.path",cfgPath);
 		System.setProperty("logfile.path",logPath);
 		Logger logger = Logger.getLogger(DbTtest.class);
-		Logger missInfoLogger = Logger.getLogger("missinfo");
 		
-		missInfoLogger.info("missed ap");
 		
 		GenRpts rptGenerator = new GenRpts(rptDate,rptPath);
 		rptGenerator.buildRptTree();		

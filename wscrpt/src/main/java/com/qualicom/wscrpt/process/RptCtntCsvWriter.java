@@ -173,6 +173,17 @@ public class RptCtntCsvWriter {
 		} 
 		writeCtnt(dataStr);
 	}
+	public void  writreConcurSumLine(int count){
+		String dataStr = null;
+			dataStr = "," + 
+			(loc==null ? "": "," ) + 
+			(ap_des==null ? "": "," ) + 
+			(ap_mac==null ? "": "," ) + 	
+			(ssid==null ? "": "," ) + 
+			String.valueOf(count)+ ",";
+			
+		writeCtnt(dataStr);
+	}
 	public void flushFile(){
 		try {
 			writer.flush();
