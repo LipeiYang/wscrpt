@@ -152,7 +152,7 @@ public class GenRpts {
 			File ssidDir = new File(rptPath);
 			if(ssidDir.exists()==false){
 				if(!ssidDir.mkdir()){
-					Logger.getLogger("miss.info").error("Failed to gen folder SSID:" + ssid );
+					Logger.getLogger(GenRpts.class).error("Failed to gen folder SSID:" + ssid );
 					continue;
 				}
 			}				
@@ -182,7 +182,7 @@ public class GenRpts {
 			File locDir = new File(rptPath);
 			if(locDir.exists()==false){
 				if(!locDir.mkdir()){
-					Logger.getLogger("miss.info").error("Failed to gen folder under Location :" + LinuxSpecialCharFilter.removeSpecChar((String)loc) );
+					Logger.getLogger(GenRpts.class).error("Failed to gen folder under Location :" + LinuxSpecialCharFilter.removeSpecChar((String)loc) );
 					continue;
 				}
 			}						
@@ -217,6 +217,7 @@ public class GenRpts {
 	private void outputRptNodeConcur(Map<Date, Set<String>>CncuSessMap, String outputDir,String prefix){
 		String rptNamePrefix = outputDir+"/"+prefix+DateUtil.DtToStr(rptDate)+"_";
 		File rptFile = new File(rptNamePrefix+"concurrent_session.csv");
+		int sumConcur = 0;
 		writer.openFile(rptFile);
 		
 		Date targetDate = DateUtil.beginOfToday(rptDate);
@@ -228,11 +229,14 @@ public class GenRpts {
 			if(cncuSessSet==null){
 				writer.writreConcurLine(targetDate, 0);
 			}	
-			else
+			else{
 				writer.writreConcurLine(targetDate,cncuSessSet.size());
+				sumConcur += cncuSessSet.size();
+			}
 			
 			targetDate = DateUtils.addMinutes(targetDate,out_concur_intvl);
 		}
+		writer.writreConcurLine(null,sumConcur/(int)(24*(60.0/out_concur_intvl)));
 		writer.flushFile();
 	}
 	private void outputRptNodeCtnt(Map<Date,RptContent> rptCtntMap, String outputDir,String prefix){

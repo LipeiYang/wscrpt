@@ -38,7 +38,10 @@ public class DateUtil {
 	}
 	public static String Dt2CSVConcurTime(Date date) throws ParseException
 	{
-		return sdfConCur.format(date);
+		if(date==null)
+			return "";
+		else
+			return sdfConCur.format(date);
 	}
 	public static Date truncDateByInterval(Date d, int interval){
 		Date beginOfToday = beginOfToday(d);
