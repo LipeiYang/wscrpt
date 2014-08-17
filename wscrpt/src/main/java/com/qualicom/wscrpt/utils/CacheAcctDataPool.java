@@ -39,12 +39,8 @@ public class CacheAcctDataPool {
 		//Try to get data from yesterday 
 		if(data == null){
 			String lastDateSuffix = DateUtil.DtToStr(DateUtils.addDays(acctData.getTmStmp(),-1));
-			try{
-				data = AcctDataFinder.findLastOne(lastDateSuffix, acctData.getAcctUniqueId());
-			}
-			catch(Exception e){
-				Logger.getLogger(CacheAcctDataPool.class).error("Failed to retrieve last acct data on date=" + lastDateSuffix+ " , UID=" + acctData.getAcctUniqueId());
-			}
+			data = AcctDataFinder.findLastOne(lastDateSuffix, acctData.getAcctUniqueId());
+			
 			if(data==null){
 				data = new AcctData();
 				data.setAcctInputOctets(0);
