@@ -1,0 +1,13 @@
+*.class
+scripts
+target
+sftp-config.json
+*.jar
+*.json
+*.exe
+*.com
+*.war
+*.ini
+smscmd.bat
+*.jar
+database.properties
