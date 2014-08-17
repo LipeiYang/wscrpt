@@ -148,7 +148,7 @@ public class GenRpts {
 	
 	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ssid : hMap.keySet()){				
-			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+(String)ssid);
+			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)ssid);
 			File ssidDir = new File(rptPath);
 			if(ssidDir.exists()==false){
 				if(!ssidDir.mkdir()){
@@ -178,7 +178,7 @@ public class GenRpts {
 	}
 	private void genRptLocNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object loc : hMap.keySet()){
-			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+(String)loc);
+			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)loc);
 			File locDir = new File(rptPath);
 			if(locDir.exists()==false){
 				if(!locDir.mkdir()){
@@ -197,7 +197,7 @@ public class GenRpts {
 	private void genRptApNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ap : hMap.keySet()){				
 			ApInfo apInfo =(ApInfo)ap;
-			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+apInfo.getApMac());
+			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac());
 			File apDir = new File(rptPath);
 			if(apDir.exists()==false){
 				if(!apDir.mkdir()){
