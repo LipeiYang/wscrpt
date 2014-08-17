@@ -9,7 +9,7 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 
 import com.qualicom.wscrpt.domain.AcctData;
-
+ 
 public class AcctDataFinder {
 	
     @SuppressWarnings("unchecked")
