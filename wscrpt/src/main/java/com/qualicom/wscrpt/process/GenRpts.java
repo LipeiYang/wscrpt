@@ -175,7 +175,7 @@ public class GenRpts {
 			out_ssid = (String)ssid;
 			writer.setSsid((String)ssid);
 			if(hMap.get(ssid).getContentMap()!=null)
-				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid));
+				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid+"_"));
 			if(hMap.get(ssid).getHierarchyMap()!=null)
 				genRptLocNode(hMap.get(ssid).getHierarchyMap(),dateUnderSsidDir.getAbsolutePath());
 			writer.setSsid(null);
