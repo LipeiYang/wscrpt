@@ -36,10 +36,10 @@ public class ConfigFileReader {
 			
 			String[] ctntArry = line.split(",",2);
 			if(orderRev){	
-				this.addToMap( ctntArry[1],ctntArry[0]);
+				this.addToMap( ctntArry[1].replace("\"", ""),ctntArry[0].replace("\"", ""));
 			}
 			else
-				this.addToMap( ctntArry[0],ctntArry[1]);
+				this.addToMap( ctntArry[0].replace("\"", ""),ctntArry[1].replace("\"", ""));
 		}		
 		fr.close();		
 		

@@ -32,9 +32,23 @@ public class ApMapUtil {
 		for(String key : apInfoReader.getConfigMap().keySet()){
 			List<String> apInfoCtnt = apInfoReader.getConfigMap().get(key);
 			String[] apInfoStrArr =  apInfoCtnt.get(apInfoCtnt.size()-1).split(",");
-			ApInfo tmpApInfo = new ApInfo(key,apInfoStrArr[0]);
+			String ap_desc,ap_loc;
+
+			if(apInfoStrArr.length==0){	
+				ap_loc = "Empty Location";
+				ap_desc = "";
+			}
+			else if(apInfoStrArr.length==1){
+				ap_loc = "Empty Location";
+				ap_desc = apInfoStrArr[0];
+			}
+			else{
+				ap_desc = apInfoStrArr[0];
+				ap_loc = apInfoStrArr[1];
+			}
+			ApInfo tmpApInfo = new ApInfo(key,ap_desc);
 			apInfoList.put(key, tmpApInfo);
-			apLocList.put(key, apInfoStrArr[1]);
+			apLocList.put(key, ap_loc);
 		}
 				
 		for(String bssid : apListReader.getConfigMap().keySet()){
@@ -49,8 +63,9 @@ public class ApMapUtil {
 				csidApList.put(bssid,apInfo);
 						
 			String location = apLocList.get(apName);			
-			if(location==null || location.equals(""))
+			if(location==null || location.equals("")){
 				csidLocList.put(bssid, "others");
+			}
 			else
 				csidLocList.put(bssid, apLocList.get(apName));
 		}		
@@ -63,7 +78,6 @@ public class ApMapUtil {
 	{
 		String Location = this.csidLocList.get(calledStationId);
 		if(Location == null){
-			missInfoLogger.info(calledStationId);
 			return "others";
 		}
 		else
@@ -78,6 +92,7 @@ public class ApMapUtil {
 	{
 		ApInfo apInfo = this.csidApList.get(calledStationId);
 		if(apInfo==null){
+			missInfoLogger.info("others");
 			return ApInfo.OTHERS; 
 		}
 		else			
