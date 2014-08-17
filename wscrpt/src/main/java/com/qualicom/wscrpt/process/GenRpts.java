@@ -26,6 +26,7 @@ import com.qualicom.wscrpt.utils.CacheAcctDataPool;
 import com.qualicom.wscrpt.utils.ConfigFileReader;
 import com.qualicom.wscrpt.utils.DateUtil;
 import com.qualicom.wscrpt.utils.IntervalMapUtil;
+import com.qualicom.wscrpt.utils.LinuxSpecialCharFilter;
 import com.qualicom.wscrpt.utils.RptTyp;
 import com.qualicom.wscrpt.vo.ApInfo;
 import com.qualicom.wscrpt.vo.RptContent;
@@ -147,7 +148,8 @@ public class GenRpts {
 	
 	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ssid : hMap.keySet()){				
-			File ssidDir = new File(rptPath+"/"+(String)ssid);
+			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+(String)ssid);
+			File ssidDir = new File(rptPath);
 			if(ssidDir.exists()==false){
 				if(!ssidDir.mkdir()){
 					Logger.getLogger("miss.info").error("Failed to gen folder SSID:" + ssid );
@@ -155,7 +157,7 @@ public class GenRpts {
 				}
 			}				
 			String ssidDateStr = DateUtil.DtToStr(rptDate);
-			File dateUnderSsidDir = new File(rptPath+"/"+(String)ssid + "/" + ssidDateStr);
+			File dateUnderSsidDir = new File(rptPath + "/" + ssidDateStr);
 			if(dateUnderSsidDir.exists()==false){
 				if(!dateUnderSsidDir.mkdir()){
 					Logger.getLogger("miss.info").error("Failed to gen date folder under SSID:" + ssid +" for date: " +  ssidDateStr);
@@ -167,7 +169,7 @@ public class GenRpts {
 			out_ssid = (String)ssid;
 			writer.setSsid((String)ssid);
 			if(hMap.get(ssid).getContentMap()!=null)
-				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),(String)ssid);
+				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid));
 			if(hMap.get(ssid).getHierarchyMap()!=null)
 				genRptLocNode(hMap.get(ssid).getHierarchyMap(),dateUnderSsidDir.getAbsolutePath());
 			writer.setSsid(null);
@@ -175,17 +177,18 @@ public class GenRpts {
 		
 	}
 	private void genRptLocNode(Map<Object,RptNode> hMap,String rptPath){
-		for(Object loc : hMap.keySet()){				
-			File locDir = new File(rptPath+"/"+(String)loc);
+		for(Object loc : hMap.keySet()){
+			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+(String)loc);
+			File locDir = new File(rptPath);
 			if(locDir.exists()==false){
 				if(!locDir.mkdir()){
-					Logger.getLogger("miss.info").error("Failed to gen folder under Location :" + (String)loc );
+					Logger.getLogger("miss.info").error("Failed to gen folder under Location :" + LinuxSpecialCharFilter.removeSpecChar((String)loc) );
 					continue;
 				}
 			}						
 			writer.setLoc((String)loc);
 			if(hMap.get(loc).getContentMap()!=null)
-				outputRptNodeCtnt(hMap.get(loc).getContentMap(),locDir.getAbsolutePath(),(String)loc+"_");
+				outputRptNodeCtnt(hMap.get(loc).getContentMap(),locDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)loc+"_"));
 			if(hMap.get(loc).getHierarchyMap()!=null)
 				genRptApNode(hMap.get(loc).getHierarchyMap(),locDir.getAbsolutePath());
 			writer.setLoc(null);
@@ -194,7 +197,8 @@ public class GenRpts {
 	private void genRptApNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ap : hMap.keySet()){				
 			ApInfo apInfo =(ApInfo)ap;
-			File apDir = new File(rptPath+"/"+apInfo.getApMac());
+			rptPath = LinuxSpecialCharFilter.removeSpecChar(rptPath+"/"+apInfo.getApMac());
+			File apDir = new File(rptPath);
 			if(apDir.exists()==false){
 				if(!apDir.mkdir()){
 					continue;
@@ -203,9 +207,9 @@ public class GenRpts {
 			writer.setAp_des(apInfo.getApDesc());
 			writer.setAp_mac(apInfo.getApMac());
 			if(hMap.get(apInfo).getContentMap()!=null)
-				outputRptNodeCtnt(hMap.get(apInfo).getContentMap(),apDir.getAbsolutePath(),apInfo.getApMac()+"_");
+				outputRptNodeCtnt(hMap.get(apInfo).getContentMap(),apDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac()+"_"));
 			if(hMap.get(apInfo).getCncuSessMap()!=null)
-				outputRptNodeConcur(hMap.get(apInfo).getCncuSessMap(),apDir.getAbsolutePath(),apInfo.getApMac()+"_");
+				outputRptNodeConcur(hMap.get(apInfo).getCncuSessMap(),apDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac()+"_"));
 			writer.setAp_des(null);
 			writer.setAp_mac(null);
 		}
@@ -461,32 +465,21 @@ public class GenRpts {
 	}
 	private void processAcctDataConcurSess(RptNode node,AcctData acctData,AcctData lastAcctData ){
 		Set<String> sessSet ;
-		int acctDataTmDiff ;
 		int interval = this.intvalConcurMapUtil.getInterval(acctData.getRuckusSsid());
-		Date keyTime = DateUtil.truncDateByInterval(acctData.getTmStmp(), interval);
-		sessSet = RptGenHelper.getRptConcurSess(node,keyTime);
-		sessSet.add(acctData.getAcctSessionId());
 		if( lastAcctData.getTmStmp()==null)						 
-			return ;
-		else
-			acctDataTmDiff = (int)(acctData.getTmStmp().getTime() - lastAcctData.getTmStmp().getTime())/(1000*60);
-		if( acctDataTmDiff > interval){
-			Date trunLastDataDate = DateUtil.truncDateByInterval(lastAcctData.getTmStmp(), interval);
-			Date beginOfToday = DateUtil.beginOfToday(acctData.getTmStmp());
-			trunLastDataDate = DateUtils.addMinutes(trunLastDataDate, interval);
-			while(trunLastDataDate.compareTo(keyTime) < 0){
-				Set<String> conSessInMiddle = RptGenHelper.getRptConcurSess(node,trunLastDataDate);							
-//				rptCtntInMiddle.setAcctInputOctets((long)(rptCtntInMiddle.getAcctInputOctets() + lastAcctData.getAcctInputOctets() - last2AcctData.getAcctInputOctets()));
-//				rptCtntInMiddle.setAcctInputPackets((long)(rptCtntInMiddle.getAcctInputPackets() + lastAcctData.getAcctInputPackets() - last2AcctData.getAcctInputPackets()));
-//				rptCtntInMiddle.setAcctOutputOctets((long)(rptCtntInMiddle.getAcctOutputOctets() + lastAcctData.getAcctOutputOctets() - last2AcctData.getAcctOutputOctets()));
-//				rptCtntInMiddle.setAcctOutputPackets((long)(rptCtntInMiddle.getAcctOutputPackets() + lastAcctData.getAcctOutputPackets() - last2AcctData.getAcctOutputPackets()));
-//				rptCtntInMiddle.setAcctSessionTime((long)(rptCtntInMiddle.getAcctSessionTime() + lastAcctData.getAcctSessionTime() - last2AcctData.getAcctSessionTime()));
-				if(trunLastDataDate.compareTo(beginOfToday) > 0){
+			return ;					
+		Date concurSnapTime = DateUtil.truncDateByInterval(acctData.getTmStmp(), interval);
+			while(concurSnapTime.compareTo(acctData.getTmStmp()) <= 0 && concurSnapTime.compareTo(lastAcctData.getTmStmp())>=0){
+				Date beginOfToday = DateUtil.beginOfToday(acctData.getTmStmp());
+				if(concurSnapTime.compareTo(beginOfToday) >= 0){
+					sessSet = RptGenHelper.getRptConcurSess(node,concurSnapTime);
+					sessSet.add(acctData.getAcctSessionId());
+					Set<String> conSessInMiddle = RptGenHelper.getRptConcurSess(node,concurSnapTime);							
 					conSessInMiddle.add(lastAcctData.getAcctSessionId());
 				}
-				trunLastDataDate = DateUtils.addMinutes(trunLastDataDate,interval);
+				concurSnapTime = DateUtils.addMinutes(concurSnapTime,-interval);
 			}
-		}
+		
 	}
 	private void processAcctData(Map<Date,RptContent> rptCtntMap, AcctData acctData,AcctData lastAcctData){
 		RptContent rptCtnt;

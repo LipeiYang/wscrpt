@@ -15,7 +15,7 @@ public class DateUtil {
 	private final static SimpleDateFormat sdfMinute = new SimpleDateFormat("HH:mm");
 	private final static SimpleDateFormat sdfConCur = new SimpleDateFormat("HHmm");
 	private final static String csvMinSep = "-";
-	private final static SimpleDateFormat sdfDaily = new SimpleDateFormat("yyyy/MM/dd");
+	private final static SimpleDateFormat sdfDaily = new SimpleDateFormat("yyyyMMdd");
 	private final static SimpleDateFormat sdfRptKey = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss");
 	
 	public static Date str2Dt(String s) throws ParseException
