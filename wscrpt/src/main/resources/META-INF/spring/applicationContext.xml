@@ -74,7 +74,6 @@
     </bean>
     <bean class="com.qualicom.wscrpt.utils.ConfigFileReader" id="apInfoReader">
     	<constructor-arg index="0" type="String" value="${cfgfile.ap_info}"/>
-    	<constructor-arg index="1" type="Boolean" value="false"/>
     </bean>
      <bean class="com.qualicom.wscrpt.utils.ConfigFileReader" id="intervalMapReader">
     	<constructor-arg index="0" type="String" value="${cfgfile.interval_map}"/>

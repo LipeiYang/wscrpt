@@ -29,9 +29,9 @@ public class ApMapUtil {
 		
 		missInfoLogger.info("Called Station Id");
 		
-		for(String key : apInfoReader.getConfigMap().keySet()){
-			List<String> apInfoCtnt = apInfoReader.getConfigMap().get(key);
-			String[] apInfoStrArr =  apInfoCtnt.get(apInfoCtnt.size()-1).split(",");
+		for(String key : apInfoReader.getArrConfigMap().keySet()){
+			List<String[]> apInfoCtnt = apInfoReader.getArrConfigMap().get(key);
+			String[] apInfoStrArr =  apInfoCtnt.get(apInfoCtnt.size()-1);
 			String ap_desc,ap_loc;
 
 			if(apInfoStrArr.length==0){	
