@@ -92,7 +92,7 @@ public class ApMapUtil {
 	{
 		ApInfo apInfo = this.csidApList.get(calledStationId);
 		if(apInfo==null){
-			missInfoLogger.info("others");
+			missInfoLogger.info(calledStationId);
 			return ApInfo.OTHERS; 
 		}
 		else			
