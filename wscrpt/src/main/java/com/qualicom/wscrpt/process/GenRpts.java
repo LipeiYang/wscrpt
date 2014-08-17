@@ -153,8 +153,8 @@ public class GenRpts {
 	
 	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ssid : hMap.keySet()){				
-			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)ssid);
-			File ssidDir = new File(rptPath);
+			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)ssid);
+			File ssidDir = new File(tmpRptPath);
 			if(ssidDir.exists()==false){
 				if(!ssidDir.mkdir()){
 					Logger.getLogger(GenRpts.class).error("Failed to gen folder SSID:" + ssid );
@@ -162,7 +162,7 @@ public class GenRpts {
 				}
 			}				
 			String ssidDateStr = DateUtil.DtToStr(rptDate);
-			File dateUnderSsidDir = new File(rptPath + "/" + ssidDateStr);
+			File dateUnderSsidDir = new File(tmpRptPath + "/" + ssidDateStr);
 			if(dateUnderSsidDir.exists()==false){
 				if(!dateUnderSsidDir.mkdir()){
 					Logger.getLogger("miss.info").error("Failed to gen date folder under SSID:" + ssid +" for date: " +  ssidDateStr);
@@ -183,8 +183,8 @@ public class GenRpts {
 	}
 	private void genRptLocNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object loc : hMap.keySet()){
-			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)loc);
-			File locDir = new File(rptPath);
+			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)loc);
+			File locDir = new File(tmpRptPath);
 			if(locDir.exists()==false){
 				if(!locDir.mkdir()){
 					Logger.getLogger(GenRpts.class).error("Failed to gen folder under Location :" + LinuxSpecialCharFilter.removeSpecChar((String)loc) );
@@ -202,8 +202,8 @@ public class GenRpts {
 	private void genRptApNode(Map<Object,RptNode> hMap,String rptPath){
 		for(Object ap : hMap.keySet()){				
 			ApInfo apInfo =(ApInfo)ap;
-			rptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac());
-			File apDir = new File(rptPath);
+			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac());
+			File apDir = new File(tmpRptPath);
 			if(apDir.exists()==false){
 				if(!apDir.mkdir()){
 					continue;
