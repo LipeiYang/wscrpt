@@ -1,6 +1,7 @@
 package com.qualicom.wscrpt.process;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,13 +146,13 @@ public class GenRpts {
 		}
 		
 	}
-	public void genRptFromTree(){
+	public void genRptFromTree() throws IOException{
 		Map<Object,RptNode> hMap = rptTree.getHierarchyMap();
 		if(hMap!=null)
 			genRptSsidNode(hMap,rptPath);
 	}
 	
-	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath){
+	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath) throws IOException{
 		for(Object ssid : hMap.keySet()){				
 			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)ssid);
 			File ssidDir = new File(tmpRptPath);
@@ -181,7 +182,7 @@ public class GenRpts {
 		}
 		
 	}
-	private void genRptLocNode(Map<Object,RptNode> hMap,String rptPath){
+	private void genRptLocNode(Map<Object,RptNode> hMap,String rptPath) throws IOException{
 		for(Object loc : hMap.keySet()){
 			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)loc);
 			File locDir = new File(tmpRptPath);
@@ -199,7 +200,7 @@ public class GenRpts {
 			writer.setLoc(null);
 		}
 	}
-	private void genRptApNode(Map<Object,RptNode> hMap,String rptPath){
+	private void genRptApNode(Map<Object,RptNode> hMap,String rptPath) throws IOException{
 		for(Object ap : hMap.keySet()){				
 			ApInfo apInfo =(ApInfo)ap;
 			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac());
@@ -219,7 +220,7 @@ public class GenRpts {
 			writer.setAp_mac(null);
 		}
 	}
-	private void outputRptNodeConcur(Map<Date, Set<String>>CncuSessMap, String outputDir,String prefix){
+	private void outputRptNodeConcur(Map<Date, Set<String>>CncuSessMap, String outputDir,String prefix) throws IOException{
 		String rptNamePrefix = outputDir+"/"+prefix+DateUtil.DtToStr(rptDate)+"_";
 		File rptFile = new File(rptNamePrefix+"concurrent_session.csv");
 		int sumConcur = 0;
@@ -244,7 +245,7 @@ public class GenRpts {
 		writer.writreConcurSumLine(sumConcur/(int)(24*(60.0/out_concur_intvl)));
 		writer.flushFile();
 	}
-	private void outputRptNodeCtnt(Map<Date,RptContent> rptCtntMap, String outputDir,String prefix){
+	private void outputRptNodeCtnt(Map<Date,RptContent> rptCtntMap, String outputDir,String prefix) throws IOException{
 		String rptNamePrefix = outputDir+"/"+prefix+DateUtil.DtToStr(rptDate)+"_";
 		File rptFile;
 		RptContent sumCtnt = new RptContent();

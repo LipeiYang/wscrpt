@@ -70,18 +70,12 @@ public class RptCtntCsvWriter {
 		}
 		return true;
 	}
-	private boolean writeCtnt(String dataStr){
-		try {
-			writer.write(dataStr);
-			writer.newLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Output to file error");
-			e.printStackTrace();
-		}
+	private boolean writeCtnt(String dataStr) throws IOException{
+		writer.write(dataStr);
+		writer.newLine();
 		return false;
 	}
-	public void  writeLine(RptContent rptCtnt, Date date, Map<String,Integer> dynCtnt, int intvl){
+	public void  writeLine(RptContent rptCtnt, Date date, Map<String,Integer> dynCtnt, int intvl) throws IOException{
 		String dataStr = null;
 		try {
 			if(intvl==-1)
@@ -110,7 +104,7 @@ public class RptCtntCsvWriter {
 		} 
 		writeCtnt(dataStr);
 	}
-	public void writeHeader(){
+	public void writeHeader() throws IOException{
 		String headerStr = "";				
 		headerStr += "Time," + 
 			(loc==null ? "": "Location," ) + 
@@ -129,7 +123,7 @@ public class RptCtntCsvWriter {
 		}
 		writeCtnt(headerStr);
 	}
-	public void writeConcurHeader(){
+	public void writeConcurHeader() throws IOException{
 		String headerStr = "";				
 		headerStr += "Time," + 
 			(loc==null ? "": "Location," ) + 
@@ -139,7 +133,7 @@ public class RptCtntCsvWriter {
 			"No. of Concurrent Session/User";
 		writeCtnt(headerStr);
 	}
-	public void  writeSumLine(RptContent rptCtnt,Map<String,Integer>dynCtnt){
+	public void  writeSumLine(RptContent rptCtnt,Map<String,Integer>dynCtnt) throws IOException{
 		String dataStr = "";				
 			dataStr += "," + 
 			(loc==null ? "": "," ) + 
@@ -158,7 +152,7 @@ public class RptCtntCsvWriter {
 			}
 		writeCtnt(dataStr);
 	}	
-	public void  writreConcurLine(Date date, int count){
+	public void  writreConcurLine(Date date, int count) throws IOException{
 		String dataStr = null;
 		try {
 			dataStr = DateUtil.Dt2CSVConcurTime(date) + "," + 
@@ -173,7 +167,7 @@ public class RptCtntCsvWriter {
 		} 
 		writeCtnt(dataStr);
 	}
-	public void  writreConcurSumLine(int count){
+	public void  writreConcurSumLine(int count) throws IOException{
 		String dataStr = null;
 			dataStr = "," + 
 			(loc==null ? "": "," ) + 
