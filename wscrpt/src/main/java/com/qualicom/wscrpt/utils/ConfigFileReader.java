@@ -19,7 +19,7 @@ public class ConfigFileReader {
 	private Map<String,List<String>> cfgCtnt;
 	private Map<String,List<String[]>> cfgArrCtnt;
 	
-	public ConfigFileReader(String inFilePath,Boolean orderRev) throws IOException {
+	public ConfigFileReader(String inFilePath,Boolean orderRev) throws Exception {
 		
 		cfgCtnt = new HashMap<String,List<String>>(); 
 		
@@ -39,6 +39,9 @@ public class ConfigFileReader {
 					skipHeader=false;
 					continue;
 				}
+			 	if(csvRecord.size() != 2){
+			 		throw new Exception("ConfigFileReader Line Format[2] not match:"+ csvRecord.toString());
+			 	}
 				if(orderRev){	
 					this.addToMap(csvRecord.get(1),csvRecord.get(0));
 				}
@@ -50,7 +53,7 @@ public class ConfigFileReader {
 //		fr.close();		
 		
 	}
-public ConfigFileReader(String inFilePath) throws IOException {
+public ConfigFileReader(String inFilePath) throws Exception {
 		
 	cfgArrCtnt = new HashMap<String,List<String[]>>();
 		
@@ -70,7 +73,9 @@ public ConfigFileReader(String inFilePath) throws IOException {
 					skipHeader=false;
 					continue;
 				}
-			 	
+				if(csvRecord.size() != 3){
+			 		throw new Exception("ConfigFileReader Line Format[3] not match:"+ csvRecord.toString());
+			 	}
 				this.addToStrArrMap(csvRecord.get(0),new String[]{csvRecord.get(1),csvRecord.get(2)});
 				
 			 

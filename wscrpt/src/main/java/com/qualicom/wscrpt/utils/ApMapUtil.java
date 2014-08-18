@@ -44,7 +44,7 @@ public class ApMapUtil {
 			}
 			else{
 				ap_desc = apInfoStrArr[0];
-				ap_loc = apInfoStrArr[1];
+				ap_loc = apInfoStrArr[1].equals("") ? "Empty Location": apInfoStrArr[1];			
 			}
 			ApInfo tmpApInfo = new ApInfo(key,ap_desc);
 			apInfoList.put(key, tmpApInfo);
