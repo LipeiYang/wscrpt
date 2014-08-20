@@ -70,6 +70,9 @@ public class AcctData {
 
     /**
      */
+    public String getRealCalledStationId(){
+    	return calledStationId.split(":")[0];
+    }
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(style = "M-")
     private Date tmStmp;
