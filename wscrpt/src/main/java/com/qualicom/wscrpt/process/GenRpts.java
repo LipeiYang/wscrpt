@@ -457,7 +457,7 @@ public class GenRpts {
 		
 		if(rptLevel.equals("ssid")){
 			//add to Rpt Content				
-			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getCalledStationId()));
+			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getCalledStationId().split(":")[0]));
 			addAcctDataToRptNode(locNode,acctData,lastAcctData,"location");
 			//ssidTree.put(acctData.getRuckusSsid(),)
 		}

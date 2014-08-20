@@ -17,6 +17,7 @@ public class ApMapUtil {
 
 	Logger missInfoLogger = Logger.getLogger("missinfo");
 	
+	static String emptyLocStr = "Empty Location";
 	
 	public ApMapUtil(ConfigFileReader apListReader,ConfigFileReader apInfoReader){
 		Map<String,ApInfo> apInfoList;		
@@ -35,16 +36,16 @@ public class ApMapUtil {
 			String ap_desc,ap_loc;
 
 			if(apInfoStrArr.length==0){	
-				ap_loc = "Empty Location";
+				ap_loc = ApMapUtil.emptyLocStr;
 				ap_desc = "";
 			}
 			else if(apInfoStrArr.length==1){
-				ap_loc = "Empty Location";
+				ap_loc = ApMapUtil.emptyLocStr;
 				ap_desc = apInfoStrArr[0];
 			}
 			else{
 				ap_desc = apInfoStrArr[0];
-				ap_loc = apInfoStrArr[1].equals("") ? "Empty Location": apInfoStrArr[1];			
+				ap_loc = apInfoStrArr[1].equals("") ? ApMapUtil.emptyLocStr : apInfoStrArr[1];			
 			}
 			ApInfo tmpApInfo = new ApInfo(key,ap_desc);
 			apInfoList.put(key, tmpApInfo);
