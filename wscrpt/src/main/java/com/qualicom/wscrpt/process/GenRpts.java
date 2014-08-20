@@ -457,13 +457,13 @@ public class GenRpts {
 		
 		if(rptLevel.equals("ssid")){
 			//add to Rpt Content				
-			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getCalledStationId().split(":")[0]));
+			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getRealCalledStationId()));
 			addAcctDataToRptNode(locNode,acctData,lastAcctData,"location");
 			//ssidTree.put(acctData.getRuckusSsid(),)
 		}
 		if(rptLevel.equals("location")){
 			//add to Rpt Content						
-			RptNode apNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getApInfo(acctData.getCalledStationId()));
+			RptNode apNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getApInfo(acctData.getRealCalledStationId()));
 			addAcctDataToRptNode(apNode,acctData,lastAcctData,"ap");
 			//ssidTree.put(acctData.getRuckusSsid(),)
 		}
