@@ -22,8 +22,7 @@ public class RptGenHelper {
 		}
 		return nodeToGet;
 	}
-	public static Set<String> getRptConcurSess(RptNode curNode,Date d){
-		Map<Date,Set<String>> conCurSessMap = RptGenHelper.getRptConcurSessMap(curNode);
+	public static Set<String> getRptConcurSess(Map<Date,Set<String>> conCurSessMap,Date d){
 		Set<String> sessSet = conCurSessMap.get(d);
 		if (sessSet==null){
 			sessSet = new HashSet<String>();

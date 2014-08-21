@@ -178,6 +178,8 @@ public class GenRpts {
 				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid+"_"));
 			if(hMap.get(ssid).getHierarchyMap()!=null)
 				genRptLocNode(hMap.get(ssid).getHierarchyMap(),dateUnderSsidDir.getAbsolutePath());
+			if(hMap.get(ssid).getCncuSessMap()!=null)
+				outputRptNodeConcur(hMap.get(ssid).getCncuSessMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid+"_"));
 			writer.setSsid(null);
 		}
 		
@@ -197,6 +199,8 @@ public class GenRpts {
 				outputRptNodeCtnt(hMap.get(loc).getContentMap(),locDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)loc+"_"));
 			if(hMap.get(loc).getHierarchyMap()!=null)
 				genRptApNode(hMap.get(loc).getHierarchyMap(),locDir.getAbsolutePath());
+			if(hMap.get(loc).getCncuSessMap()!=null)
+				outputRptNodeConcur(hMap.get(loc).getCncuSessMap(),locDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)loc+"_"));
 			writer.setLoc(null);
 		}
 	}
@@ -432,7 +436,7 @@ public class GenRpts {
 	
 	private void generateRptByDay(String date) {
 		int curRecOffset = 0;
-		List<AcctData> adList = AcctDataFinder.findAcctData(date, curRecOffset, curRecOffset+pageSize);
+		List<AcctData> adList = AcctDataFinder.findAcctData(date, curRecOffset, pageSize);
 		
 		while(adList.size()!=0){
 			for(AcctData acctData : adList){
@@ -448,43 +452,39 @@ public class GenRpts {
 				
 			}
 			curRecOffset += pageSize;
-			adList= AcctDataFinder.findAcctData(date, curRecOffset, curRecOffset+pageSize);
+			adList= AcctDataFinder.findAcctData(date, curRecOffset, pageSize);
 		}
 	}
 	private  void addAcctDataToRptNode(RptNode curNode , AcctData acctData,AcctData lastAcctData,String rptLevel){
 		//if curNode dont contain the data's ssid, add one
 		processAcctData(RptGenHelper.getRptNodeContent(curNode),acctData,lastAcctData);
-		
+		processAcctDataConcurSess(RptGenHelper.getRptConcurSessMap(curNode),acctData,lastAcctData);
 		if(rptLevel.equals("ssid")){
 			//add to Rpt Content				
 			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getRealCalledStationId()));
 			addAcctDataToRptNode(locNode,acctData,lastAcctData,"location");
-			//ssidTree.put(acctData.getRuckusSsid(),)
 		}
 		if(rptLevel.equals("location")){
 			//add to Rpt Content						
 			RptNode apNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getApInfo(acctData.getRealCalledStationId()));
 			addAcctDataToRptNode(apNode,acctData,lastAcctData,"ap");
-			//ssidTree.put(acctData.getRuckusSsid(),)
+
 		}
 		if(rptLevel.equals("ap")){
-			processAcctDataConcurSess(curNode,acctData,lastAcctData);
 			return ;
 		}
 			
 	}
-	private void processAcctDataConcurSess(RptNode node,AcctData acctData,AcctData lastAcctData ){
-		Set<String> sessSet ;
+	private void processAcctDataConcurSess(Map<Date,Set<String>> rptConcurCtntMap,AcctData acctData,AcctData lastAcctData ){
+		
 		int interval = this.intvalConcurMapUtil.getInterval(acctData.getRuckusSsid());
 		if( lastAcctData.getTmStmp()==null)						 
 			return ;					
 		Date concurSnapTime = DateUtil.truncDateByInterval(acctData.getTmStmp(), interval);
+		Date beginOfToday = DateUtil.beginOfToday(acctData.getTmStmp());
 			while(concurSnapTime.compareTo(acctData.getTmStmp()) <= 0 && concurSnapTime.compareTo(lastAcctData.getTmStmp())>=0){
-				Date beginOfToday = DateUtil.beginOfToday(acctData.getTmStmp());
 				if(concurSnapTime.compareTo(beginOfToday) >= 0){
-					sessSet = RptGenHelper.getRptConcurSess(node,concurSnapTime);
-					sessSet.add(acctData.getAcctSessionId());
-					Set<String> conSessInMiddle = RptGenHelper.getRptConcurSess(node,concurSnapTime);							
+					Set<String> conSessInMiddle = RptGenHelper.getRptConcurSess(rptConcurCtntMap,concurSnapTime);							
 					conSessInMiddle.add(lastAcctData.getAcctSessionId());
 				}
 				concurSnapTime = DateUtils.addMinutes(concurSnapTime,-interval);
@@ -584,6 +584,13 @@ public class GenRpts {
 		System.setProperty("logfile.path",logPath);
 		Logger logger = Logger.getLogger(DbTtest.class);
 		
+		Date rptDateTday = DateUtil.str2Dt(rptDate);
+		Date boundDay = DateUtil.getDaysBeforeToday(7);
+		if(rptDateTday.compareTo(boundDay) < 0){
+			Logger boundDaylogger = Logger.getLogger("Main");
+			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
+			return;
+		}
 		
 		GenRpts rptGenerator = new GenRpts(rptDate,rptPath);
 		rptGenerator.buildRptTree();		

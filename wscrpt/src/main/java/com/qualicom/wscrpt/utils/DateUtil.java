@@ -91,7 +91,12 @@ public class DateUtil {
 		}
 		return s;
 	}
-	
+	public static Date getDaysBeforeToday(int d){
+		if( d < 0 ){
+			return beginOfToday(new Date());
+		}
+		return DateUtils.addDays(beginOfToday(new Date()),-d);
+	}
 	
 	
 	private static String[] getDays(Calendar c, int days)
