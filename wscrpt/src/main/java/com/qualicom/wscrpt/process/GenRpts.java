@@ -582,7 +582,6 @@ public class GenRpts {
 		
 		System.setProperty("cfgfile.path",cfgPath);
 		System.setProperty("logfile.path",logPath);
-		Logger logger = Logger.getLogger(DbTtest.class);
 		
 		Date rptDateTday = DateUtil.str2Dt(rptDate);
 		Date boundDay = DateUtil.getDaysBeforeToday(7);
