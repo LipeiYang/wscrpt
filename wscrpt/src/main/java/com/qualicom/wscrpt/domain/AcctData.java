@@ -71,6 +71,7 @@ public class AcctData {
     /**
      */
     public String getRealCalledStationId(){
+    	if(null==calledStationId) return "";
     	return calledStationId.split(":")[0];
     }
     @Temporal(TemporalType.TIMESTAMP)
