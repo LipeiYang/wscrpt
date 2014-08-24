@@ -21,10 +21,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.qualicom.wscrpt.domain.AcctData;
 import com.qualicom.wscrpt.finder.AcctDataFinder;
-import com.qualicom.wscrpt.test.DbTtest;
 import com.qualicom.wscrpt.utils.ApMapUtil;
 import com.qualicom.wscrpt.utils.CacheAcctDataPool;
-import com.qualicom.wscrpt.utils.ConfigFileReader;
 import com.qualicom.wscrpt.utils.DateUtil;
 import com.qualicom.wscrpt.utils.IntervalMapUtil;
 import com.qualicom.wscrpt.utils.LinuxSpecialCharFilter;
