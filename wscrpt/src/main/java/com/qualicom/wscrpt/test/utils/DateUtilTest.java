@@ -19,5 +19,11 @@ public class DateUtilTest {
 		Date outDate = DateUtil.truncDateByInterval(d, 15);
 		assertEquals(sdf.format(outDate),"2014/07/19 20:15:00");
 	}
+	@Test
+	public void testPrevDay(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Date d = DateUtil.getDaysBeforeToday(7);
+		System.out.println(sdf.format(d));
+	}
 
 }
