@@ -1,9 +1,6 @@
 package com.qualicom.wscrpt.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,64 +21,49 @@ public class ConfigFileReader {
 		cfgCtnt = new HashMap<String,List<String>>(); 
 		
 		File f = new File(System.getProperty("cfgfile.path")+"/"+inFilePath);
-//		FileReader fr;
-//	
-//		fr = new FileReader(f);
-//		
-//		BufferedReader buf = new BufferedReader(fr);
-//		String line;
-		Boolean skipHeader = true;
 		
-		
-		 CSVParser parser = CSVParser.parse(f, Charset.defaultCharset(), CSVFormat.DEFAULT);
-		 for (CSVRecord csvRecord : parser) {
-			 if(skipHeader){
-					skipHeader=false;
+		if(f.exists())
+		{	
+			Boolean skipHeader = true;
+			CSVParser parser = CSVParser.parse(f, Charset.defaultCharset(),CSVFormat.DEFAULT);
+			for (CSVRecord csvRecord : parser) {
+				if (skipHeader) {
+					skipHeader = false;
 					continue;
 				}
-			 	if(csvRecord.size() != 2){
-			 		throw new Exception("ConfigFileReader Line Format[2] not match:"+ csvRecord.toString());
-			 	}
-				if(orderRev){	
-					this.addToMap(csvRecord.get(1),csvRecord.get(0));
+				if (csvRecord.size() != 2) {
+					throw new Exception("ConfigFileReader Line Format[2] not match:"+ csvRecord.toString());
 				}
-				else
-					this.addToMap(csvRecord.get(0),csvRecord.get(1));
-			 
-		 }
-			
-//		fr.close();		
-		
+				if (orderRev) {
+					this.addToMap(csvRecord.get(1), csvRecord.get(0));
+				} else {
+					this.addToMap(csvRecord.get(0), csvRecord.get(1));
+				}
+			}
+		}
 	}
-public ConfigFileReader(String inFilePath) throws Exception {
+	
+	public ConfigFileReader(String inFilePath) throws Exception {
 		
-	cfgArrCtnt = new HashMap<String,List<String[]>>();
+		cfgArrCtnt = new HashMap<String,List<String[]>>();
 		
 		File f = new File(System.getProperty("cfgfile.path")+"/"+inFilePath);
-//		FileReader fr;
-//	
-//		fr = new FileReader(f);
-//		
-//		BufferedReader buf = new BufferedReader(fr);
-//		String line;
-		Boolean skipHeader = true;
 		
-		
-		 CSVParser parser = CSVParser.parse(f, Charset.defaultCharset(), CSVFormat.DEFAULT);
-		 for (CSVRecord csvRecord : parser) {
-			 if(skipHeader){
-					skipHeader=false;
+		if(f.exists())
+		{
+			Boolean skipHeader = true;
+			CSVParser parser = CSVParser.parse(f, Charset.defaultCharset(),CSVFormat.DEFAULT);
+			for (CSVRecord csvRecord : parser) {
+				if (skipHeader) {
+					skipHeader = false;
 					continue;
 				}
-				if(csvRecord.size() != 3){
-			 		throw new Exception("ConfigFileReader Line Format[3] not match:"+ csvRecord.toString());
-			 	}
-				this.addToStrArrMap(csvRecord.get(0),new String[]{csvRecord.get(1),csvRecord.get(2)});
-				
-			 
-		 }
-			
-//		fr.close();		
+				if (csvRecord.size() != 3) {
+					throw new Exception("ConfigFileReader Line Format[3] not match:"+ csvRecord.toString());
+				}
+				this.addToStrArrMap(csvRecord.get(0),new String[] { csvRecord.get(1), csvRecord.get(2) });
+			}
+		}
 		
 	}
 	private void addToMap(String key,String value){
