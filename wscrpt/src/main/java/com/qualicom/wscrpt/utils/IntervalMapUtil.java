@@ -20,8 +20,9 @@ public class IntervalMapUtil {
 		Map<String,List<String>> intvalMap = intervalReader.getConfigMap();
 		for(String ssid : intvalMap.keySet()){
 			List<String> intervalStrList = intvalMap.get(ssid);
-			int intvl_value = Integer.valueOf(intervalStrList.get(intervalStrList.size() - 1));
+			int intvl_value = 0;
 			try {
+				intvl_value = Integer.valueOf(intervalStrList.get(intervalStrList.size() - 1));
 				if (intvl_value % 5 == 0)
 					intervalMap.put(ssid, intvl_value);
 				else
