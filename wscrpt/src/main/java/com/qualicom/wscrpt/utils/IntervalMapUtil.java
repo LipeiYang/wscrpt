@@ -20,11 +20,16 @@ public class IntervalMapUtil {
 		Map<String,List<String>> intvalMap = intervalReader.getConfigMap();
 		for(String ssid : intvalMap.keySet()){
 			List<String> intervalStrList = intvalMap.get(ssid);
-			int intvl_value= Integer.valueOf(intervalStrList.get(intervalStrList.size()-1));
-			if (intvl_value % 5 == 0)
-				intervalMap.put(ssid, intvl_value );
-			else
-				Logger.getLogger(IntervalMapUtil.class.getName()).info("ssid "+ ssid + " interval value [" + intvl_value  + "]ignored ");
+      try{
+           int intvl_value= Integer.valueOf(intervalStrList.get(intervalStrList.size()-1));
+           if (intvl_value % 5 == 0)
+              intervalMap.put(ssid, intvl_value );
+           else
+               throw new Exception("Interval Map value not multiple of 5");
+       }
+      catch(Exception e){
+           Logger.getLogger(IntervalMapUtil.class.getName()).info("ssid "+ ssid + " interval value [" + intvl_value  + "]ignored ");
+      }
 		}
 	}
 	
