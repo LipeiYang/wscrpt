@@ -6,13 +6,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Deploy {
 	public static void main(String[] args) {
-		String rptDate = args[0];
-		String cfgPath = args[1];
-		String rptPath = args[2];
-		String logPath = args[3];
+	
 		
-		System.setProperty("cfgfile.path",cfgPath);
-		System.setProperty("logfile.path",logPath);
+		System.setProperty("cfgfile.path","/sms/config");
+		System.setProperty("logfile.path","/sms/logs");
 		
 		ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/applicationContext.xml");
 		BeanFactory factory = context;
