@@ -29,7 +29,12 @@ public class DateUtil {
 	public static String Dt2CSVMinRng(Date date,int intvl) throws ParseException
 	{
 		String t_begin = sdfMinute.format(date);
-		String t_end = sdfMinute.format(DateUtils.addMinutes(date, intvl));
+		String t_end = null;
+		Date d_end = DateUtils.addMinutes(date, intvl);
+		if(d_end.compareTo(DateUtil.getDayEnd(date)) < 0 )
+			t_end = sdfMinute.format(d_end);
+		else
+			t_end =  sdfMinute.format(DateUtils.addSeconds(DateUtil.getDayEnd(date),1));
 		return t_begin + csvMinSep + t_end;
 	}
 	public static String Dt2CSVDay(Date date) throws ParseException
