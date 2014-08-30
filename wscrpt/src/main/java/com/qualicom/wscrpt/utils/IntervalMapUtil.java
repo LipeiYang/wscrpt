@@ -23,8 +23,10 @@ public class IntervalMapUtil {
 			int intvl_value = 0;
 			try {
 				intvl_value = Integer.valueOf(intervalStrList.get(intervalStrList.size() - 1));
-				if (intvl_value % 5 == 0)
+				if (intvl_value % 5 == 0){
+					intvl_value = intvl_value > 60 ? 60 : intvl_value;
 					intervalMap.put(ssid, intvl_value);
+				}
 				else
 					throw new NumberFormatException("Interval Map value not multiple of 5");
 			} catch (NumberFormatException e) {
