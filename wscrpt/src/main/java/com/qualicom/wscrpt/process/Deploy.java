@@ -14,7 +14,6 @@ public class Deploy {
 		ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/applicationContext.xml");
 		BeanFactory factory = context;
 		System.out.println("Deployment Success");
-		
 
 	}
 }
