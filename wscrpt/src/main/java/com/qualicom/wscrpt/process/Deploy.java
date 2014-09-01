@@ -1,19 +1,14 @@
 package com.qualicom.wscrpt.process;
 
-import org.springframework.beans.factory.BeanFactory;
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Deploy {
 	public static void main(String[] args) {
-	
-		
-		System.setProperty("cfgfile.path","/sms/config");
-		System.setProperty("logfile.path","/sms/logs");
 		
 		ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/applicationContext.xml");
-		BeanFactory factory = context;
-		System.out.println("Deployment Success");
-
+		Logger.getLogger(Deploy.class).info("Deployment Success of Database Table");
+		
 	}
 }

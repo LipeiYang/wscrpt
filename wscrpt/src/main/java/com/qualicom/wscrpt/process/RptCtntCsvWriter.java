@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -147,7 +148,7 @@ public class RptCtntCsvWriter {
 			csvDataList.add("");
 		return csvDataList;
 	}
-	public void  writeSumLine(RptContent rptCtnt,Map<String,Integer>dynCtnt) throws IOException{
+	public void  writeSumLine(RptContent rptCtnt,Map<String,Set<String>>dynCtnt) throws IOException{
 		List<String> sumLine = buildSumLinePrefix();
 		sumLine.add(String.valueOf(rptCtnt.getUserNameSet().size()));
 		sumLine.add(String.valueOf(rptCtnt.getCallingStationIdSet().size()));
@@ -157,7 +158,7 @@ public class RptCtntCsvWriter {
 		sumLine.add(String.valueOf(rptCtnt.getAcctOutputOctets()));
 		sumLine.add(String.valueOf(rptCtnt.getAcctSessionTime()));
 			for(String colName : dynColmOrder){
-				sumLine.add(String.valueOf(dynCtnt.get(colName)));
+				sumLine.add(String.valueOf(dynCtnt.get(colName).size()));
 			}
 		writeCtnt(sumLine);
 	}	

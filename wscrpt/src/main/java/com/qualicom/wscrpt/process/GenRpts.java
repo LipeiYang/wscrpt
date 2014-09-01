@@ -255,7 +255,7 @@ public class GenRpts {
 		Set<String> connInfoSet = null;
 		List<String> connInfoOrder = null;
 		Map<String,Integer> connCountTmp = null;
-		Map<String,Integer> connCountSum = null;
+		Map<String,Set<String>> connCountSum = null;
 		
 		for(RptTyp rptTyp : rptTypOfDay){
 			switch (rptTyp) {
@@ -266,7 +266,7 @@ public class GenRpts {
 					 writer.openFile(rptFile);
 					 connInfoSet = new HashSet<String>();
 					 
-					 connCountSum = new HashMap<String,Integer>();
+					 connCountSum = new HashMap<String,Set<String>>();
 					 for(Date date : dayList){
 							RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
 							if(rptCtnt==null){
@@ -276,7 +276,7 @@ public class GenRpts {
 							//init newly added conn info
 							for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
 								if(!connCountSum.keySet().contains(connInfo)){
-									connCountSum.put(connInfo, 0);
+									connCountSum.put(connInfo, new HashSet<String>());
 								}
 							}
 					 }
@@ -293,16 +293,15 @@ public class GenRpts {
 						
 						for(String connInfo : connInfoSet){
 							Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
-							int connCount = connCountSum.get(connInfo);
+							Set<String> connCount = connCountSum.get(connInfo);
 							if(connTypeSet!=null){
-								connCount += connTypeSet.size();
+								connCount.addAll(connTypeSet);
 								connCountTmp.put(connInfo,connTypeSet.size());
 							}
 							else
 								connCountTmp.put(connInfo,0);
-							connCountSum.put(connInfo, connCount);
-							
-							
+							//connCountSum.put(connInfo, connCount);
+	
 						}
 						writer.writeLine(rptCtnt,date,connCountTmp,-1);
 					
@@ -322,7 +321,7 @@ public class GenRpts {
 					sumCtnt = new RptContent();
 					writer.openFile(rptFile);
 					connInfoSet = new HashSet<String>();
-					connCountSum = new HashMap<String,Integer>();
+					connCountSum = new HashMap<String,Set<String>>();
 					for(Date date : dayList){
 						RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
 						if(rptCtnt==null){
@@ -331,7 +330,7 @@ public class GenRpts {
 						connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
 						for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
 							if(!connCountSum.keySet().contains(connInfo)){
-								connCountSum.put(connInfo, 0);
+								connCountSum.put(connInfo, new HashSet<String>());
 							}
 						}
 					}
@@ -348,14 +347,14 @@ public class GenRpts {
 						
 						for(String connInfo : connInfoSet){
 							Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
-							int connCount = connCountSum.get(connInfo);
+							Set<String> connCount = connCountSum.get(connInfo);
 							if(connTypeSet!=null){
-								connCount += connTypeSet.size();
+								connCount.addAll(connTypeSet);
 								connCountTmp.put(connInfo,connTypeSet.size());
 							}
 							else
 								connCountTmp.put(connInfo,0);
-							connCountSum.put(connInfo, connCount);							
+							//connCountSum.put(connInfo, connCount);							
 						}
 						
 						writer.writeLine(rptCtnt,date,connCountTmp,-1);
@@ -374,7 +373,7 @@ public class GenRpts {
 					rptFile = new File(rptNamePrefix+"Daily.csv");
 					sumCtnt = new RptContent();
 					writer.openFile(rptFile);
-					connCountSum = new HashMap<String,Integer>();
+					connCountSum = new HashMap<String,Set<String>>();
 					connInfoSet = new HashSet<String>();
 					Date targetDate = DateUtil.beginOfToday(rptDate);
 					Date endDate = DateUtils.addDays(targetDate, 1);
@@ -388,7 +387,7 @@ public class GenRpts {
 						connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
 						for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
 							if(!connCountSum.keySet().contains(connInfo)){
-								connCountSum.put(connInfo, 0);
+								connCountSum.put(connInfo, new HashSet<String>());
 							}
 						}
 						targetDate = DateUtils.addMinutes(targetDate,out_intvl);
@@ -406,14 +405,14 @@ public class GenRpts {
 						}	
 						for(String connInfo : connInfoSet){
 							Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
-							int connCount = connCountSum.get(connInfo);
+							Set<String> connCount = connCountSum.get(connInfo);
 							if(connTypeSet!=null){
-								connCount += connTypeSet.size();
+								connCount.addAll(connTypeSet);
 								connCountTmp.put(connInfo,connTypeSet.size());
 							}
 							else
 								connCountTmp.put(connInfo,0);
-							connCountSum.put(connInfo, connCount);							
+							//connCountSum.put(connInfo, connCount);							
 						}
 						writer.writeLine(rptCtnt,targetDate,connCountTmp,out_intvl);
 						targetDate = DateUtils.addMinutes(targetDate,out_intvl);
