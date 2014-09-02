@@ -14,8 +14,6 @@ privileged aspect AcctData_Roo_Jpa_ActiveRecord {
     @PersistenceContext
     transient EntityManager AcctData.entityManager;
     
-    public static final List<String> AcctData.fieldNames4OrderClauseFilter = java.util.Arrays.asList("acctUniqueId", "acctSessionId", "nasIpAddress", "ruckusSsid", "callingStationId", "userName", "connectInfo", "sessionStatus", "calledStationId", "acctSessionTime", "acctInputOctets", "acctOutputOctets", "acctInputPackets", "acctOutputPackets", "tmStmp");
-    
     public static final EntityManager AcctData.entityManager() {
         EntityManager em = new AcctData().entityManager;
         if (em == null) throw new IllegalStateException("Entity manager has not been injected (is the Spring Aspects JAR configured as an AJC/AJDT aspects library?)");
@@ -30,17 +28,6 @@ privileged aspect AcctData_Roo_Jpa_ActiveRecord {
         return entityManager().createQuery("SELECT o FROM AcctData o", AcctData.class).getResultList();
     }
     
-    public static List<AcctData> AcctData.findAllAcctDatas(String sortFieldName, String sortOrder) {
-        String jpaQuery = "SELECT o FROM AcctData o";
-        if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
-            jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
-            if ("ASC".equalsIgnoreCase(sortOrder) || "DESC".equalsIgnoreCase(sortOrder)) {
-                jpaQuery = jpaQuery + " " + sortOrder;
-            }
-        }
-        return entityManager().createQuery(jpaQuery, AcctData.class).getResultList();
-    }
-    
     public static AcctData AcctData.findAcctData(Long id) {
         if (id == null) return null;
         return entityManager().find(AcctData.class, id);
@@ -48,17 +35,6 @@ privileged aspect AcctData_Roo_Jpa_ActiveRecord {
     
     public static List<AcctData> AcctData.findAcctDataEntries(int firstResult, int maxResults) {
         return entityManager().createQuery("SELECT o FROM AcctData o", AcctData.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
-    }
-    
-    public static List<AcctData> AcctData.findAcctDataEntries(int firstResult, int maxResults, String sortFieldName, String sortOrder) {
-        String jpaQuery = "SELECT o FROM AcctData o";
-        if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
-            jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
-            if ("ASC".equalsIgnoreCase(sortOrder) || "DESC".equalsIgnoreCase(sortOrder)) {
-                jpaQuery = jpaQuery + " " + sortOrder;
-            }
-        }
-        return entityManager().createQuery(jpaQuery, AcctData.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
     
     @Transactional

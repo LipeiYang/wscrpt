@@ -88,35 +88,35 @@ privileged aspect AcctData_Roo_JavaBean {
         this.acctSessionTime = acctSessionTime;
     }
     
-    public Integer AcctData.getAcctInputOctets() {
+    public Long AcctData.getAcctInputOctets() {
         return this.acctInputOctets;
     }
     
-    public void AcctData.setAcctInputOctets(Integer acctInputOctets) {
+    public void AcctData.setAcctInputOctets(Long acctInputOctets) {
         this.acctInputOctets = acctInputOctets;
     }
     
-    public Integer AcctData.getAcctOutputOctets() {
+    public Long AcctData.getAcctOutputOctets() {
         return this.acctOutputOctets;
     }
     
-    public void AcctData.setAcctOutputOctets(Integer acctOutputOctets) {
+    public void AcctData.setAcctOutputOctets(Long acctOutputOctets) {
         this.acctOutputOctets = acctOutputOctets;
     }
     
-    public Integer AcctData.getAcctInputPackets() {
+    public Long AcctData.getAcctInputPackets() {
         return this.acctInputPackets;
     }
     
-    public void AcctData.setAcctInputPackets(Integer acctInputPackets) {
+    public void AcctData.setAcctInputPackets(Long acctInputPackets) {
         this.acctInputPackets = acctInputPackets;
     }
     
-    public Integer AcctData.getAcctOutputPackets() {
+    public Long AcctData.getAcctOutputPackets() {
         return this.acctOutputPackets;
     }
     
-    public void AcctData.setAcctOutputPackets(Integer acctOutputPackets) {
+    public void AcctData.setAcctOutputPackets(Long acctOutputPackets) {
         this.acctOutputPackets = acctOutputPackets;
     }
     

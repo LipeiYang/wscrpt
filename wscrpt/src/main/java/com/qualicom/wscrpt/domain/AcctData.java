@@ -54,26 +54,22 @@ public class AcctData {
 
     /**
      */
-    private Integer acctInputOctets;
+    private Long acctInputOctets;
 
     /**
      */
-    private Integer acctOutputOctets;
+    private Long acctOutputOctets;
 
     /**
      */
-    private Integer acctInputPackets;
+    private Long acctInputPackets;
 
     /**
      */
-    private Integer acctOutputPackets;
+    private Long acctOutputPackets;
 
     /**
      */
-    public String getRealCalledStationId(){
-    	if(null==calledStationId) return "";
-    	return calledStationId.split(":")[0];
-    }
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(style = "M-")
     private Date tmStmp;
