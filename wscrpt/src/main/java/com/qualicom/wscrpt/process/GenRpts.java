@@ -21,6 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.qualicom.wscrpt.domain.AcctData;
 import com.qualicom.wscrpt.finder.AcctDataFinder;
+import com.qualicom.wscrpt.utils.AcctDataUtil;
 import com.qualicom.wscrpt.utils.ApMapUtil;
 import com.qualicom.wscrpt.utils.CacheAcctDataPool;
 import com.qualicom.wscrpt.utils.DateUtil;
@@ -75,7 +76,6 @@ public class GenRpts {
 		try {
 			rptDate = DateUtil.str2Dt(irptDate);
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
 			Logger.getLogger(GenRpts.class).error("Parse Date: "+ irptDate + " failed");
 			e1.printStackTrace();
 			throw e1;
@@ -90,17 +90,6 @@ public class GenRpts {
 		intvalMapUtil = context.getBean("intervalUtil",IntervalMapUtil.class);
 		intvalConcurMapUtil = context.getBean("concurIntervalUtil",IntervalMapUtil.class);
 		apMapUtil = context.getBean("mapUtil",ApMapUtil.class);
-//		try {
-//			if(rptIntvlPath!=null && !rptIntvlPath.equals("")){			
-//					intvalMapUtil = new IntervalMapUtil(new ConfigFileReader(rptIntvlPath,false));			
-//				}			
-//			if(concurIntvlPath!=null && !concurIntvlPath.equals("")){
-//				intvalConcurMapUtil = new IntervalMapUtil(new ConfigFileReader(concurIntvlPath,false));
-//			}
-//		}
-//		catch(Exception e) {			
-//			e.printStackTrace();
-//		}
 	}
 	public void buildRptTree() throws Exception{
 		
@@ -458,12 +447,12 @@ public class GenRpts {
 		processAcctDataConcurSess(RptGenHelper.getRptConcurSessMap(curNode),acctData,lastAcctData);
 		if(rptLevel.equals("ssid")){
 			//add to Rpt Content				
-			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(acctData.getRealCalledStationId()));
+			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(AcctDataUtil.getRealCalledStationId(acctData)));
 			addAcctDataToRptNode(locNode,acctData,lastAcctData,"location");
 		}
 		if(rptLevel.equals("location")){
 			//add to Rpt Content						
-			RptNode apNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getApInfo(acctData.getRealCalledStationId()));
+			RptNode apNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getApInfo(AcctDataUtil.getRealCalledStationId(acctData)));
 			addAcctDataToRptNode(apNode,acctData,lastAcctData,"ap");
 
 		}

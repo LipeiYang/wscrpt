@@ -43,10 +43,10 @@ public class CacheAcctDataPool {
 				data = AcctDataFinder.findLastOne(lastDateSuffix, acctData.getAcctUniqueId());
 			if(data==null){
 				data = new AcctData();
-				data.setAcctInputOctets(0);
-				data.setAcctInputPackets(0);
-				data.setAcctOutputOctets(0);
-				data.setAcctOutputPackets(0);
+				data.setAcctInputOctets(0L);
+				data.setAcctInputPackets(0L);
+				data.setAcctOutputOctets(0L);
+				data.setAcctOutputPackets(0L);
 				data.setAcctSessionId(acctData.getAcctSessionId());
 				data.setAcctSessionTime(0);
 				data.setAcctUniqueId(acctData.getAcctUniqueId());
