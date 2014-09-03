@@ -489,46 +489,24 @@ public class GenRpts {
 						break;
 					}
 					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));
-					rptCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + acctData.getAcctInputOctets() - lastAcctData.getAcctInputOctets()));
-					rptCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + acctData.getAcctInputPackets() - lastAcctData.getAcctInputPackets()));
-					rptCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + acctData.getAcctOutputOctets() - lastAcctData.getAcctOutputOctets()));
-					rptCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + acctData.getAcctOutputPackets() - lastAcctData.getAcctOutputPackets()));
-					rptCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + acctData.getAcctSessionTime() - lastAcctData.getAcctSessionTime()));
-					rptCtnt.getUserNameSet().add(acctData.getUserName());
-					acctUniqIdSet = RptGenHelper.getConnInfoByType(rptCtnt, acctData.getConnectInfo());
-					acctUniqIdSet.add(acctData.getAcctUniqueId());
-					rptCtnt.getCallingStationIdSet().add(acctData.getCallingStationId());
+					processCtntData(rptCtnt,acctData,lastAcctData);
 					dayProcessed = true;
 					break;			
 				case WEEK:
 					if(dayProcessed){ 
 						break;
 					}
-					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));
-					rptCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + acctData.getAcctInputOctets() - lastAcctData.getAcctInputOctets()));
-					rptCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + acctData.getAcctInputPackets() - lastAcctData.getAcctInputPackets()));
-					rptCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + acctData.getAcctOutputOctets() - lastAcctData.getAcctOutputOctets()));
-					rptCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + acctData.getAcctOutputPackets() - lastAcctData.getAcctOutputPackets()));
-					rptCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + acctData.getAcctSessionTime() - lastAcctData.getAcctSessionTime()));
-					rptCtnt.getUserNameSet().add(acctData.getUserName());
-					acctUniqIdSet = RptGenHelper.getConnInfoByType(rptCtnt, acctData.getConnectInfo());
-					acctUniqIdSet.add(acctData.getAcctUniqueId());
-					rptCtnt.getCallingStationIdSet().add(acctData.getCallingStationId());	
+					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));					
+					processCtntData(rptCtnt,acctData,lastAcctData);
 					dayProcessed = true;
 					break;		
 				case DAY:
 					int interval = this.intvalMapUtil.getInterval(acctData.getRuckusSsid());
 					Date keyTime = DateUtil.truncDateByInterval(acctData.getTmStmp(), interval);
 					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap,keyTime);
-					rptCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + acctData.getAcctInputOctets() - lastAcctData.getAcctInputOctets()));
-					rptCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + acctData.getAcctInputPackets() - lastAcctData.getAcctInputPackets()));
-					rptCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + acctData.getAcctOutputOctets() - lastAcctData.getAcctOutputOctets()));
-					rptCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + acctData.getAcctOutputPackets() - lastAcctData.getAcctOutputPackets()));
-					rptCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + acctData.getAcctSessionTime() - lastAcctData.getAcctSessionTime()));
-					rptCtnt.getUserNameSet().add(acctData.getUserName());
-					acctUniqIdSet = RptGenHelper.getConnInfoByType(rptCtnt, acctData.getConnectInfo());
-					acctUniqIdSet.add(acctData.getAcctUniqueId());
-					rptCtnt.getCallingStationIdSet().add(acctData.getCallingStationId());
+					
+					processCtntData(rptCtnt,acctData,lastAcctData);
+	
 					if( lastAcctData.getTmStmp()==null)						 
 						return ;
 					else
@@ -539,11 +517,6 @@ public class GenRpts {
 						trunLastDataDate = DateUtils.addMinutes(trunLastDataDate, interval);
 						while(trunLastDataDate.compareTo(keyTime) < 0){
 							RptContent rptCtntInMiddle = RptGenHelper.getRptContentByDate(rptCtntMap,trunLastDataDate);							
-//							rptCtntInMiddle.setAcctInputOctets((long)(rptCtntInMiddle.getAcctInputOctets() + lastAcctData.getAcctInputOctets() - last2AcctData.getAcctInputOctets()));
-//							rptCtntInMiddle.setAcctInputPackets((long)(rptCtntInMiddle.getAcctInputPackets() + lastAcctData.getAcctInputPackets() - last2AcctData.getAcctInputPackets()));
-//							rptCtntInMiddle.setAcctOutputOctets((long)(rptCtntInMiddle.getAcctOutputOctets() + lastAcctData.getAcctOutputOctets() - last2AcctData.getAcctOutputOctets()));
-//							rptCtntInMiddle.setAcctOutputPackets((long)(rptCtntInMiddle.getAcctOutputPackets() + lastAcctData.getAcctOutputPackets() - last2AcctData.getAcctOutputPackets()));
-//							rptCtntInMiddle.setAcctSessionTime((long)(rptCtntInMiddle.getAcctSessionTime() + lastAcctData.getAcctSessionTime() - last2AcctData.getAcctSessionTime()));
 							if(trunLastDataDate.compareTo(beginOfToday) >= 0){
 								acctUniqIdSet = RptGenHelper.getConnInfoByType(rptCtntInMiddle, lastAcctData.getConnectInfo());
 								acctUniqIdSet.add(lastAcctData.getAcctUniqueId());				
@@ -559,7 +532,45 @@ public class GenRpts {
 			}
 		}
 	}
-	
+	private void processCtntData(RptContent rptCtnt,AcctData acctData,AcctData lastAcctData){
+		Set<String> acctUniqIdSet;
+		long acctInputOctets,acctInputPackets,acctOutputOctets,acctOutputPackets,acctSessionTime;
+
+		if(acctData.getAcctInputOctets() >= lastAcctData.getAcctInputOctets())
+			acctInputOctets = (long)(rptCtnt.getAcctInputOctets() + acctData.getAcctInputOctets() - lastAcctData.getAcctInputOctets());
+		else	
+			acctInputOctets = (long)(rptCtnt.getAcctInputOctets() + acctData.getAcctInputOctets() );
+		
+		if(acctData.getAcctInputPackets() >= lastAcctData.getAcctInputPackets())
+			acctInputPackets = (long)(rptCtnt.getAcctInputPackets() + acctData.getAcctInputPackets() - lastAcctData.getAcctInputPackets());
+		else	
+			acctInputPackets = (long)(rptCtnt.getAcctInputPackets() + acctData.getAcctInputPackets() );
+		
+		if(acctData.getAcctOutputOctets() >= lastAcctData.getAcctOutputOctets())
+			acctOutputOctets = (long)(rptCtnt.getAcctOutputOctets() + acctData.getAcctOutputOctets() - lastAcctData.getAcctOutputOctets());
+		else	
+			acctOutputOctets = (long)(rptCtnt.getAcctOutputOctets() + acctData.getAcctOutputOctets() );
+		
+		if(acctData.getAcctOutputPackets() >= lastAcctData.getAcctOutputPackets())
+			acctOutputPackets = (long)(rptCtnt.getAcctOutputPackets() + acctData.getAcctOutputPackets() - lastAcctData.getAcctOutputPackets());
+		else	
+			acctOutputPackets = (long)(rptCtnt.getAcctOutputPackets() + acctData.getAcctOutputPackets() );
+		if(acctData.getAcctSessionTime() >= lastAcctData.getAcctSessionTime())
+			acctSessionTime = (long)(rptCtnt.getAcctSessionTime() + acctData.getAcctSessionTime() - lastAcctData.getAcctSessionTime());
+		else	
+			acctSessionTime = (long)(rptCtnt.getAcctSessionTime() + acctData.getAcctSessionTime() );
+		
+		rptCtnt.setAcctInputOctets(acctInputOctets);
+		rptCtnt.setAcctInputPackets(acctInputPackets);
+		rptCtnt.setAcctOutputOctets(acctOutputOctets);
+		rptCtnt.setAcctOutputPackets(acctOutputPackets);
+		rptCtnt.setAcctSessionTime(acctSessionTime);
+		
+		rptCtnt.getUserNameSet().add(acctData.getUserName());
+		acctUniqIdSet = RptGenHelper.getConnInfoByType(rptCtnt, acctData.getConnectInfo());
+		acctUniqIdSet.add(acctData.getAcctUniqueId());
+		rptCtnt.getCallingStationIdSet().add(acctData.getCallingStationId());	
+	}
 	public static void main(String[] args) throws Exception {
 		String rptDate = args[0];
 		String cfgPath = args[1];
