@@ -484,14 +484,7 @@ public class GenRpts {
 		int acctDataTmDiff ;
 		for(RptTyp rptTyp : rptTypOfDay){
 			switch (rptTyp) {
-				case MONTH: 					
-					if(dayProcessed){ 
-						break;
-					}
-					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));
-					processCtntData(rptCtnt,acctData,lastAcctData);
-					dayProcessed = true;
-					break;			
+				case MONTH: 				
 				case WEEK:
 					if(dayProcessed){ 
 						break;
@@ -508,7 +501,7 @@ public class GenRpts {
 					processCtntData(rptCtnt,acctData,lastAcctData);
 	
 					if( lastAcctData.getTmStmp()==null)						 
-						return ;
+						break;
 					else
 						acctDataTmDiff = (int)(acctData.getTmStmp().getTime() - lastAcctData.getTmStmp().getTime())/(1000*60);
 					if( acctDataTmDiff > interval){
@@ -528,7 +521,7 @@ public class GenRpts {
 						}
 					}
 //					System.out.println("Generating Daily Report");
-						break;
+						
 			}
 		}
 	}
