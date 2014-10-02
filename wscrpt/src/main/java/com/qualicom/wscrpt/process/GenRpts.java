@@ -480,20 +480,15 @@ public class GenRpts {
 	private void processAcctData(Map<Date,RptContent> rptCtntMap, AcctData acctData,AcctData lastAcctData){
 		RptContent rptCtnt;
 		Set<String> acctUniqIdSet;
-		boolean dayProcessed = false;
 		int acctDataTmDiff ;
-		for(RptTyp rptTyp : rptTypOfDay){
-			switch (rptTyp) {
-				case MONTH: 				
-				case WEEK:
-					if(dayProcessed){ 
-						break;
-					}
+		
+		if(rptTypOfDay.contains(RptTyp.MONTH) || rptTypOfDay.contains(RptTyp.WEEK)){
+		
 					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));					
 					processCtntData(rptCtnt,acctData,lastAcctData);
-					dayProcessed = true;
-					break;		
-				case DAY:
+		}
+		if(rptTypOfDay.contains(RptTyp.DAY)){
+			
 					int interval = this.intvalMapUtil.getInterval(acctData.getRuckusSsid());
 					Date keyTime = DateUtil.truncDateByInterval(acctData.getTmStmp(), interval);
 					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap,keyTime);
@@ -501,7 +496,7 @@ public class GenRpts {
 					processCtntData(rptCtnt,acctData,lastAcctData);
 	
 					if( lastAcctData.getTmStmp()==null)						 
-						break;
+						return;
 					else
 						acctDataTmDiff = (int)(acctData.getTmStmp().getTime() - lastAcctData.getTmStmp().getTime())/(1000*60);
 					if( acctDataTmDiff > interval){
@@ -522,7 +517,7 @@ public class GenRpts {
 					}
 //					System.out.println("Generating Daily Report");
 						
-			}
+			
 		}
 	}
 	private void processCtntData(RptContent rptCtnt,AcctData acctData,AcctData lastAcctData){
@@ -575,11 +570,11 @@ public class GenRpts {
 		
 		Date rptDateTday = DateUtil.str2Dt(rptDate);
 		Date boundDay = DateUtil.getDaysBeforeToday(7);
-		if(rptDateTday.compareTo(boundDay) < 0){
-			Logger boundDaylogger = Logger.getLogger("Main");
-			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
-			return;
-		}
+//		if(rptDateTday.compareTo(boundDay) < 0){
+//			Logger boundDaylogger = Logger.getLogger("Main");
+//			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
+//			return;
+//		}
 		
 		GenRpts rptGenerator = new GenRpts(rptDate,rptPath);
 		rptGenerator.buildRptTree();		
