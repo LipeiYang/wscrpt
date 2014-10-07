@@ -570,11 +570,11 @@ public class GenRpts {
 		
 		Date rptDateTday = DateUtil.str2Dt(rptDate);
 		Date boundDay = DateUtil.getDaysBeforeToday(7);
-//		if(rptDateTday.compareTo(boundDay) < 0){
-//			Logger boundDaylogger = Logger.getLogger("Main");
-//			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
-//			return;
-//		}
+		if(rptDateTday.compareTo(boundDay) < 0){
+			Logger boundDaylogger = Logger.getLogger("Main");
+			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
+			return;
+		}
 		
 		GenRpts rptGenerator = new GenRpts(rptDate,rptPath);
 		rptGenerator.buildRptTree();		
