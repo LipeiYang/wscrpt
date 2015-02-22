@@ -12,7 +12,8 @@ public class AcctDataUtil
 		}
 		else
 		{
-			return acctData.getCalledStationId().split(":")[0];
+			return acctData.getCalledStationId().split(":")[0].intern();
+			
 		}
 	}
 }

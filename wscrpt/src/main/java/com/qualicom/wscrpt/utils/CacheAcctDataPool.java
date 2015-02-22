@@ -1,12 +1,11 @@
 package com.qualicom.wscrpt.utils;
 
 
-import java.util.Date;
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
 
 import com.qualicom.wscrpt.domain.AcctData;
 import com.qualicom.wscrpt.finder.AcctDataFinder;
@@ -24,7 +23,7 @@ public class CacheAcctDataPool {
 	}
 		
 	
-	Map<String,AcctData> lastAcctDataPool = new HashMap<String,AcctData>();
+	Map<String,AcctData> lastAcctDataPool = new THashMap<String,AcctData>();
 
 	public void addToPool(AcctData acctData){
 		lastAcctDataPool.put(acctData.getAcctSessionId(), acctData);

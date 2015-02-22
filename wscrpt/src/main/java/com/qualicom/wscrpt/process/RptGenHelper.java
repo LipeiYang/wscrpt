@@ -1,13 +1,15 @@
 package com.qualicom.wscrpt.process;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.qualicom.wscrpt.finder.DBHashSet;
 import com.qualicom.wscrpt.utils.DateUtil;
 import com.qualicom.wscrpt.utils.RptTyp;
 import com.qualicom.wscrpt.vo.RptContent;
@@ -25,7 +27,7 @@ public class RptGenHelper {
 	public static Set<String> getRptConcurSess(Map<Date,Set<String>> conCurSessMap,Date d){
 		Set<String> sessSet = conCurSessMap.get(d);
 		if (sessSet==null){
-			sessSet = new HashSet<String>();
+			sessSet = new DBHashSet<String>();
 			conCurSessMap.put(d, sessSet);
 		}
 		return sessSet;
@@ -33,7 +35,7 @@ public class RptGenHelper {
 	public static Set<String> getConnInfoByType(RptContent ctnt, String connType){
 		Set<String> acctUniqIdSet = RptGenHelper.getConnInfoMap(ctnt).get(connType);
 		if(acctUniqIdSet==null){
-			acctUniqIdSet = new HashSet<String>();
+			acctUniqIdSet = new DBHashSet<String>();
 			ctnt.getConnInfoMap().put(connType, acctUniqIdSet);
 		}
 		return acctUniqIdSet;
@@ -41,7 +43,7 @@ public class RptGenHelper {
 	public static Map<String,Set<String>> getConnInfoMap(RptContent ctnt){
 		Map <String,Set<String>> connInfoMap = ctnt.getConnInfoMap();
 		if(connInfoMap==null){
-			connInfoMap = new HashMap<String,Set<String>>();
+			connInfoMap = new THashMap<String,Set<String>>();
 			ctnt.setConnInfoMap(connInfoMap);
 		}
 		return connInfoMap;
@@ -49,7 +51,7 @@ public class RptGenHelper {
 	public static Map<Date,Set<String>> getRptConcurSessMap(RptNode curNode){
 		Map<Date,Set<String>> conCurSessMap = curNode.getCncuSessMap();
 		if(conCurSessMap==null){
-			conCurSessMap = new HashMap<Date,Set<String>>();
+			conCurSessMap = new THashMap<Date,Set<String>>();
 			curNode.setCncuSessMap(conCurSessMap);
 		}
 		return conCurSessMap;
@@ -57,7 +59,7 @@ public class RptGenHelper {
 	public static Map<Date,RptContent> getRptNodeContent(RptNode node){
 		Map<Date,RptContent> dateCtntMap = node.getContentMap();
 		if(dateCtntMap == null){
-			dateCtntMap = new HashMap<Date,RptContent>();	
+			dateCtntMap = new THashMap<Date,RptContent>();	
 			node.setContentMap(dateCtntMap);
 		}
 		return dateCtntMap;
@@ -73,34 +75,35 @@ public class RptGenHelper {
 	public static Map<Object,RptNode> getRptNodeHierarchy(RptNode node){
 		Map<Object,RptNode> typeHirayMap = node.getHierarchyMap();
 		if(typeHirayMap == null){
-			typeHirayMap = new HashMap<Object,RptNode>();	
+			typeHirayMap = new THashMap<Object,RptNode>();	
 			node.setHierarchyMap(typeHirayMap); 
 		}
 		return typeHirayMap;
 	}
-	private static void addToRptTypSet(List<String> dayOfPeriodRptList,HashMap<String,Set<RptTyp>> rptTypeDateMap,RptTyp targetTyp ){
+	private static void addToRptTypSet(List<String> dayOfPeriodRptList,THashMap<String,Set<RptTyp>> rptTypeDateMap,RptTyp targetTyp ){
 		for(String date : dayOfPeriodRptList){
 			Set<RptTyp> rptTypOfDate = rptTypeDateMap.get(date);
 			if(rptTypOfDate==null){
-				rptTypOfDate = new HashSet<RptTyp>();
+				rptTypOfDate = new THashSet<RptTyp>();
 				rptTypeDateMap.put(date, rptTypOfDate);
 			}
 			rptTypOfDate.add(targetTyp);
 		}
 	}
-	public static HashMap<String,Set<RptTyp>> createRptDateTypeMap(Date inRptDate){
+	public static THashMap<String,Set<RptTyp>> createRptDateTypeMap(Date inRptDate,RptTyp boundDateTyp){
 		Set<RptTyp> rptTypeGenable = DateUtil.getRptTyps(inRptDate);
-		HashMap<String,Set<RptTyp>> rptTypeDateMap = new HashMap<String,Set<RptTyp>>();
+		
+		THashMap<String,Set<RptTyp>> rptTypeDateMap = new THashMap<String,Set<RptTyp>>();
 		for(RptTyp dateType : rptTypeGenable){
-			if(dateType.compareTo(RptTyp.MONTH)==0){
+			if(dateType.compareTo(RptTyp.MONTH)==0&&dateType.compareTo(boundDateTyp)==0){
 				List<String> dayOfMonthRptList = Arrays.asList(DateUtil.getDays4Mth(inRptDate));
 				addToRptTypSet(dayOfMonthRptList,rptTypeDateMap,RptTyp.MONTH);
 			}
-			if(dateType.compareTo(RptTyp.WEEK)==0){
+			if(dateType.compareTo(RptTyp.WEEK)==0&&dateType.compareTo(boundDateTyp)==0){
 				List<String> dayOfWeekRptList = Arrays.asList(DateUtil.getDays4Wek(inRptDate));
 				addToRptTypSet(dayOfWeekRptList,rptTypeDateMap,RptTyp.WEEK);
 			}
-			if(dateType.compareTo(RptTyp.DAY)==0){
+			if(dateType.compareTo(RptTyp.DAY)==0&&dateType.compareTo(boundDateTyp)==0){
 				List<String> dayRptList = Arrays.asList(new String[]{DateUtil.DtToStr(inRptDate)});
 				addToRptTypSet(dayRptList,rptTypeDateMap,RptTyp.DAY);
 			}

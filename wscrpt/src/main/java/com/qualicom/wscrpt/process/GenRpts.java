@@ -1,5 +1,8 @@
 package com.qualicom.wscrpt.process;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -7,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.qualicom.wscrpt.domain.AcctData;
 import com.qualicom.wscrpt.finder.AcctDataFinder;
+import com.qualicom.wscrpt.finder.DBHashSet;
 import com.qualicom.wscrpt.utils.AcctDataUtil;
 import com.qualicom.wscrpt.utils.ApMapUtil;
 import com.qualicom.wscrpt.utils.CacheAcctDataPool;
@@ -54,6 +56,8 @@ public class GenRpts {
 	
 	IntervalMapUtil intvalMapUtil;
 	IntervalMapUtil intvalConcurMapUtil;
+	
+	long mem_log = Long.MAX_VALUE;
 	public IntervalMapUtil getIntvalMapUtil() {
 		return intvalMapUtil;
 	}
@@ -84,16 +88,19 @@ public class GenRpts {
 		
 		context = new ClassPathXmlApplicationContext("META-INF/spring/applicationContext.xml");
 		
-		rptTypDateMap = new HashMap<RptTyp,List<Date>>();
+		rptTypDateMap = new THashMap<RptTyp,List<Date>>();
 		
 		factory = context;
 		intvalMapUtil = context.getBean("intervalUtil",IntervalMapUtil.class);
 		intvalConcurMapUtil = context.getBean("concurIntervalUtil",IntervalMapUtil.class);
 		apMapUtil = context.getBean("mapUtil",ApMapUtil.class);
 	}
-	public void buildRptTree() throws Exception{
+	public boolean buildRptTree(RptTyp genTyp) throws Exception{
 		
-		Map<String,Set<RptTyp>> rptDateTypeMap = RptGenHelper.createRptDateTypeMap(rptDate);
+		Map<String,Set<RptTyp>> rptDateTypeMap = RptGenHelper.createRptDateTypeMap(rptDate,genTyp);
+		if(rptDateTypeMap.size()==0){
+			return false;
+		}
 		// Gene RptType to Date List for help during output report
 		for(String date : rptDateTypeMap.keySet()){
 			Set<RptTyp> rptSet = rptDateTypeMap.get(date);
@@ -125,22 +132,27 @@ public class GenRpts {
 				});
 			rptTypDateMap.put(rptTyp, dateList);
 		}
+		
+		
 		List<String> OrderedDate = new ArrayList<String>(rptDateTypeMap.keySet());
 		Collections.sort(OrderedDate);
 		for(String dateStr : OrderedDate){
 			rptTypOfDay = rptDateTypeMap.get(dateStr);
 			generateRptByDay(dateStr);
-		}
+		}	
 		
+		return true;
 	}
 	public void genRptFromTree() throws IOException, ParseException{
 		Map<Object,RptNode> hMap = rptTree.getHierarchyMap();
 		if(hMap!=null)
 			genRptSsidNode(hMap,rptPath);
+		System.out.println(mem_log/1024/1024);
 	}
 	
 	private void genRptSsidNode(Map<Object,RptNode> hMap,String rptPath) throws IOException, ParseException{
-		for(Object ssid : hMap.keySet()){				
+		Set ssidSet = hMap.keySet();
+		for(Object ssid : ssidSet){		
 			String tmpRptPath = rptPath+"/"+LinuxSpecialCharFilter.removeSpecChar((String)ssid);
 			File ssidDir = new File(tmpRptPath);
 			if(ssidDir.exists()==false){
@@ -161,13 +173,23 @@ public class GenRpts {
 			out_concur_intvl = intvalConcurMapUtil.getInterval((String)ssid);
 			out_ssid = (String)ssid;
 			writer.setSsid((String)ssid);
-			if(hMap.get(ssid).getContentMap()!=null)
+			System.out.println("SSID LEVEL:"+Runtime.getRuntime().freeMemory()/(1024*1024));
+			if(hMap.get(ssid).getContentMap()!=null){
 				outputRptNodeCtnt(hMap.get(ssid).getContentMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid+"_"));
-			if(hMap.get(ssid).getHierarchyMap()!=null)
+				hMap.get(ssid).getContentMap().clear();
+			}
+			if(hMap.get(ssid).getHierarchyMap()!=null){
 				genRptLocNode(hMap.get(ssid).getHierarchyMap(),dateUnderSsidDir.getAbsolutePath());
-			if(hMap.get(ssid).getCncuSessMap()!=null)
+				hMap.get(ssid).getHierarchyMap().clear();
+			}
+			if(hMap.get(ssid).getCncuSessMap()!=null){
 				outputRptNodeConcur(hMap.get(ssid).getCncuSessMap(),dateUnderSsidDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)ssid+"_"));
+				hMap.get(ssid).getCncuSessMap().clear();
+			}
 			writer.setSsid(null);
+			mem_log = Runtime.getRuntime().freeMemory() < mem_log ? Runtime.getRuntime().freeMemory() :mem_log;
+
+			hMap.put(ssid,null);
 		}
 		
 	}
@@ -182,12 +204,18 @@ public class GenRpts {
 				}
 			}						
 			writer.setLoc((String)loc);
-			if(hMap.get(loc).getContentMap()!=null)
+			if(hMap.get(loc).getContentMap()!=null){
 				outputRptNodeCtnt(hMap.get(loc).getContentMap(),locDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)loc+"_"));
-			if(hMap.get(loc).getHierarchyMap()!=null)
+				hMap.get(loc).getContentMap().clear();
+			}
+			if(hMap.get(loc).getHierarchyMap()!=null){
 				genRptApNode(hMap.get(loc).getHierarchyMap(),locDir.getAbsolutePath());
-			if(hMap.get(loc).getCncuSessMap()!=null)
+				hMap.get(loc).getHierarchyMap().clear();
+			}
+			if(hMap.get(loc).getCncuSessMap()!=null){
 				outputRptNodeConcur(hMap.get(loc).getCncuSessMap(),locDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar((String)loc+"_"));
+				hMap.get(loc).getCncuSessMap().clear();
+			}
 			writer.setLoc(null);
 		}
 	}
@@ -203,10 +231,14 @@ public class GenRpts {
 			}					
 			writer.setAp_des(apInfo.getApDesc());
 			writer.setAp_mac(apInfo.getApMac());
-			if(hMap.get(apInfo).getContentMap()!=null)
+			if(hMap.get(apInfo).getContentMap()!=null){
 				outputRptNodeCtnt(hMap.get(apInfo).getContentMap(),apDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac()+"_"));
-			if(hMap.get(apInfo).getCncuSessMap()!=null)
+				hMap.get(apInfo).getContentMap().clear();
+			}
+			if(hMap.get(apInfo).getCncuSessMap()!=null){
 				outputRptNodeConcur(hMap.get(apInfo).getCncuSessMap(),apDir.getAbsolutePath(),LinuxSpecialCharFilter.removeSpecChar(apInfo.getApMac()+"_"));
+				hMap.get(apInfo).getCncuSessMap().clear();
+			}
 			writer.setAp_des(null);
 			writer.setAp_mac(null);
 		}
@@ -249,124 +281,20 @@ public class GenRpts {
 		for(RptTyp rptTyp : rptTypOfDay){
 			switch (rptTyp) {
 				case MONTH:
-					 dayList = rptTypDateMap.get(rptTyp);
-					 rptFile = new File(rptNamePrefix+"Monthly.csv");
-					 sumCtnt = new RptContent();
-					 writer.openFile(rptFile);
-					 connInfoSet = new HashSet<String>();
-					 
-					 connCountSum = new HashMap<String,Set<String>>();
-					 for(Date date : dayList){
-							RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
-							if(rptCtnt==null){
-								continue;
-							}
-							connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
-							//init newly added conn info
-							for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
-								if(!connCountSum.keySet().contains(connInfo)){
-									connCountSum.put(connInfo, new HashSet<String>());
-								}
-							}
-					 }
-					 connInfoOrder = new ArrayList<String>(connInfoSet);
-					 Collections.sort(connInfoOrder);
-					 writer.setDynColmOrder(connInfoOrder);
-					 writer.writeHeader();
-					for(Date date : dayList){
-						connCountTmp =  new HashMap<String,Integer>();						
-						RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));						
-						if(rptCtnt==null){
-							rptCtnt =  new RptContent();
-						}
-						
-						for(String connInfo : connInfoSet){
-							Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
-							Set<String> connCount = connCountSum.get(connInfo);
-							if(connTypeSet!=null){
-								connCount.addAll(connTypeSet);
-								connCountTmp.put(connInfo,connTypeSet.size());
-							}
-							else
-								connCountTmp.put(connInfo,0);
-							//connCountSum.put(connInfo, connCount);
-	
-						}
-						writer.writeLine(rptCtnt,date,connCountTmp,-1);
-					
-						sumCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + sumCtnt.getAcctInputOctets()));
-						sumCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + sumCtnt.getAcctInputPackets()));
-						sumCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + sumCtnt.getAcctOutputOctets()));
-						sumCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + sumCtnt.getAcctOutputPackets()));
-						sumCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + sumCtnt.getAcctSessionTime()));
-						sumCtnt.getUserNameSet().addAll(rptCtnt.getUserNameSet());
-						sumCtnt.getCallingStationIdSet().addAll(rptCtnt.getCallingStationIdSet());
-						
-					}
+					genReportDaily(rptCtntMap,rptTyp,outputDir,prefix,"Monthly.csv");					 
 					break;
 				case WEEK:
-					dayList = rptTypDateMap.get(rptTyp);
-					rptFile = new File(rptNamePrefix+"Weekly.csv");
-					sumCtnt = new RptContent();
-					writer.openFile(rptFile);
-					connInfoSet = new HashSet<String>();
-					connCountSum = new HashMap<String,Set<String>>();
-					for(Date date : dayList){
-						RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
-						if(rptCtnt==null){
-							continue;
-						}
-						connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
-						for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
-							if(!connCountSum.keySet().contains(connInfo)){
-								connCountSum.put(connInfo, new HashSet<String>());
-							}
-						}
-					}
-					connInfoOrder = new ArrayList<String>(connInfoSet);
-					 Collections.sort(connInfoOrder);
-					 writer.setDynColmOrder(connInfoOrder);
-					 writer.writeHeader();
-					for(Date date : dayList){
-						connCountTmp =  new HashMap<String,Integer>();
-						RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
-						if(rptCtnt==null){
-							rptCtnt =  new RptContent();
-						}
-						
-						for(String connInfo : connInfoSet){
-							Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
-							Set<String> connCount = connCountSum.get(connInfo);
-							if(connTypeSet!=null){
-								connCount.addAll(connTypeSet);
-								connCountTmp.put(connInfo,connTypeSet.size());
-							}
-							else
-								connCountTmp.put(connInfo,0);
-							//connCountSum.put(connInfo, connCount);							
-						}
-						
-						writer.writeLine(rptCtnt,date,connCountTmp,-1);
-											
-						sumCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + sumCtnt.getAcctInputOctets()));
-						sumCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + sumCtnt.getAcctInputPackets()));
-						sumCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + sumCtnt.getAcctOutputOctets()));
-						sumCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + sumCtnt.getAcctOutputPackets()));
-						sumCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + sumCtnt.getAcctSessionTime()));
-						sumCtnt.getUserNameSet().addAll(rptCtnt.getUserNameSet());
-						sumCtnt.getCallingStationIdSet().addAll(rptCtnt.getCallingStationIdSet());
-						
-					}
+					genReportDaily(rptCtntMap,rptTyp,outputDir,prefix,"Weekly.csv");
 					break;
 				case DAY:
 					rptFile = new File(rptNamePrefix+"Daily.csv");
 					sumCtnt = new RptContent();
 					writer.openFile(rptFile);
-					connCountSum = new HashMap<String,Set<String>>();
-					connInfoSet = new HashSet<String>();
+					connCountSum = new THashMap<String,Set<String>>();
+					connInfoSet = new THashSet<String>();
 					Date targetDate = DateUtil.beginOfToday(rptDate);
 					Date endDate = DateUtils.addDays(targetDate, 1);
-					//scan available connetion info
+					//scan available connection info
 					while(targetDate.compareTo(endDate) < 0){
 						RptContent rptCtnt = rptCtntMap.get(targetDate);
 						if(rptCtnt==null){
@@ -376,7 +304,7 @@ public class GenRpts {
 						connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
 						for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
 							if(!connCountSum.keySet().contains(connInfo)){
-								connCountSum.put(connInfo, new HashSet<String>());
+								connCountSum.put(connInfo, new THashSet<String>());
 							}
 						}
 						targetDate = DateUtils.addMinutes(targetDate,out_intvl);
@@ -387,7 +315,7 @@ public class GenRpts {
 					 writer.setDynColmOrder(connInfoOrder);
 					 writer.writeHeader();
 					while(targetDate.compareTo(endDate) < 0){
-						connCountTmp =  new HashMap<String,Integer>();
+						connCountTmp =  new THashMap<String,Integer>();
 						RptContent rptCtnt = rptCtntMap.get(targetDate);
 						if(rptCtnt==null){
 							rptCtnt =  new RptContent();
@@ -412,12 +340,80 @@ public class GenRpts {
 						sumCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + sumCtnt.getAcctSessionTime()));
 						sumCtnt.getUserNameSet().addAll(rptCtnt.getUserNameSet());
 						sumCtnt.getCallingStationIdSet().addAll(rptCtnt.getCallingStationIdSet());
-					}					
+					}				
+					writer.writeSumLine(sumCtnt,connCountSum);
+					writer.flushFile();
 					break;
 			}
-			writer.writeSumLine(sumCtnt,connCountSum);
-			writer.flushFile();
+			
 		}
+	}
+	private void genReportDaily(Map<Date,RptContent> rptCtntMap,RptTyp rptTyp,String outputDir,String prefix,String rptNameTimeSuffix) throws IOException, ParseException{
+		String rptNamePrefix = outputDir+"/"+prefix+DateUtil.DtToStr(rptDate)+"_";
+		File rptFile;
+		RptContent sumCtnt = new RptContent();
+		List<Date> dayList;
+		Set<String> connInfoSet = null;
+		List<String> connInfoOrder = null;
+		Map<String,Integer> connCountTmp = null;
+		Map<String,Set<String>> connCountSum = null;
+		dayList = rptTypDateMap.get(rptTyp);
+		 rptFile = new File(rptNamePrefix+rptNameTimeSuffix);
+		 sumCtnt = new RptContent();
+		 writer.openFile(rptFile);
+		 connInfoSet = new THashSet<String>();
+		
+		 connCountSum = new THashMap<String,Set<String>>();
+		 for(Date date : dayList){
+				RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));
+				if(rptCtnt==null){
+					continue;
+				}
+				connInfoSet.addAll(rptCtnt.getConnInfoMap().keySet());
+				//init newly added conn info
+				for(String connInfo: rptCtnt.getConnInfoMap().keySet()){
+					if(!connCountSum.keySet().contains(connInfo)){
+						connCountSum.put(connInfo, new THashSet<String>());
+					}
+				}
+		 }
+		 connInfoOrder = new ArrayList<String>(connInfoSet);
+		 Collections.sort(connInfoOrder);
+		 writer.setDynColmOrder(connInfoOrder);
+		 writer.writeHeader();
+		for(Date date : dayList){
+			connCountTmp =  new THashMap<String,Integer>();						
+			RptContent rptCtnt = rptCtntMap.get(DateUtil.getDayEnd(date));						
+			if(rptCtnt==null){
+				rptCtnt =  new RptContent();
+			}
+			
+			for(String connInfo : connInfoSet){
+				Set<String> connTypeSet = RptGenHelper.getConnInfoByType(rptCtnt,connInfo);
+				Set<String> connCount = connCountSum.get(connInfo);
+				if(connTypeSet!=null){
+					connCount.addAll(connTypeSet);
+					connCountTmp.put(connInfo,connTypeSet.size());
+				}
+				else
+					connCountTmp.put(connInfo,0);
+				//connCountSum.put(connInfo, connCount);
+
+			}
+			writer.writeLine(rptCtnt,date,connCountTmp,-1);
+		
+			sumCtnt.setAcctInputOctets((long)(rptCtnt.getAcctInputOctets() + sumCtnt.getAcctInputOctets()));
+			sumCtnt.setAcctInputPackets((long)(rptCtnt.getAcctInputPackets() + sumCtnt.getAcctInputPackets()));
+			sumCtnt.setAcctOutputOctets((long)(rptCtnt.getAcctOutputOctets() + sumCtnt.getAcctOutputOctets()));
+			sumCtnt.setAcctOutputPackets((long)(rptCtnt.getAcctOutputPackets() + sumCtnt.getAcctOutputPackets()));
+			sumCtnt.setAcctSessionTime((long)(rptCtnt.getAcctSessionTime() + sumCtnt.getAcctSessionTime()));
+			sumCtnt.getUserNameSet().addAll(rptCtnt.getUserNameSet());
+			sumCtnt.getCallingStationIdSet().addAll(rptCtnt.getCallingStationIdSet());
+			
+		}
+		writer.writeSumLine(sumCtnt,connCountSum);
+		writer.flushFile();
+		
 	}
 	
 	private void generateRptByDay(String date) {
@@ -427,8 +423,11 @@ public class GenRpts {
 		while(adList.size()!=0){
 			for(AcctData acctData : adList){
 				AcctData lastAcctData = CacheAcctDataPool.getInstance().searchLastAcctData(acctData);	
-				RptNode ssidNode = RptGenHelper.getRptNodeByObj(rptTree,acctData.getRuckusSsid());				
+				RptNode ssidNode = RptGenHelper.getRptNodeByObj(rptTree,acctData.getRuckusSsid());		
+				//System.out.println(Runtime.getRuntime().freeMemory());
+				mem_log = Runtime.getRuntime().freeMemory() < mem_log ? Runtime.getRuntime().freeMemory() :mem_log;
 				addAcctDataToRptNode(ssidNode, acctData,lastAcctData, "ssid");		
+				
 				if(acctData.getSessionStatus().equals("E")){
 					CacheAcctDataPool.getInstance().removeFromPool(acctData);
 				}
@@ -445,6 +444,7 @@ public class GenRpts {
 		//if curNode dont contain the data's ssid, add one
 		processAcctData(RptGenHelper.getRptNodeContent(curNode),acctData,lastAcctData);
 		processAcctDataConcurSess(RptGenHelper.getRptConcurSessMap(curNode),acctData,lastAcctData);
+		
 		if(rptLevel.equals("ssid")){
 			//add to Rpt Content				
 			RptNode locNode = RptGenHelper.getRptNodeByObj(curNode,apMapUtil.getLocation(AcctDataUtil.getRealCalledStationId(acctData)));
@@ -487,6 +487,7 @@ public class GenRpts {
 					rptCtnt = RptGenHelper.getRptContentByDate(rptCtntMap, DateUtil.getDayEnd(acctData.getTmStmp()));					
 					processCtntData(rptCtnt,acctData,lastAcctData);
 		}
+		
 		if(rptTypOfDay.contains(RptTyp.DAY)){
 			
 					int interval = this.intvalMapUtil.getInterval(acctData.getRuckusSsid());
@@ -569,7 +570,7 @@ public class GenRpts {
 		System.setProperty("logfile.path",logPath);
 		
 		Date rptDateTday = DateUtil.str2Dt(rptDate);
-		Date boundDay = DateUtil.getDaysBeforeToday(7);
+		Date boundDay = DateUtil.getDaysBeforeToday(30);
 		if(rptDateTday.compareTo(boundDay) < 0){
 			Logger boundDaylogger = Logger.getLogger("Main");
 			boundDaylogger.error("Input Date " + rptDate + " out of acceptable boundary: " + DateUtil.DtToStr(boundDay));
@@ -577,8 +578,14 @@ public class GenRpts {
 		}
 		
 		GenRpts rptGenerator = new GenRpts(rptDate,rptPath);
-		rptGenerator.buildRptTree();		
-		rptGenerator.genRptFromTree();
+		RptTyp[] genOrder = new RptTyp[]{RptTyp.DAY,RptTyp.WEEK,RptTyp.MONTH};
+		for(RptTyp typ : genOrder){
+			if(rptGenerator.buildRptTree(typ))		
+				rptGenerator.genRptFromTree();
+			System.out.println(Runtime.getRuntime().freeMemory()/(1024*1024));
+			DBHashSet.resetData();
+			System.out.println(Runtime.getRuntime().freeMemory()/(1024*1024));
+		}
 	}
 	
 }

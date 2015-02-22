@@ -1,11 +1,11 @@
 package com.qualicom.wscrpt.utils;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import com.qualicom.wscrpt.vo.ApInfo;
 
@@ -23,10 +23,10 @@ public class ApMapUtil {
 		Map<String,ApInfo> apInfoList;		
 		Map<String,String> apLocList;	
 		
-		csidApList = new HashMap<String,ApInfo>();
-		csidLocList = new HashMap<String,String>();
-		apInfoList = new HashMap<String,ApInfo>();
-		apLocList = new HashMap<String,String>();
+		csidApList = new THashMap<String,ApInfo>();
+		csidLocList = new THashMap<String,String>();
+		apInfoList = new THashMap<String,ApInfo>();
+		apLocList = new THashMap<String,String>();
 		
 		missInfoLogger.info("Called Station Id");
 		

@@ -1,33 +1,35 @@
 package com.qualicom.wscrpt.vo;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Map;
 import java.util.Set;
+
+import com.qualicom.wscrpt.finder.DBHashSet;
 
 public class RptContent {
 	
 	private Set<String> userNameSet;
 	private Set<String> callingStationIdSet;
-    private Long acctSessionTime ;
-    private Long acctInputOctets ;
-    private Long acctOutputOctets  ;
-    private Long acctInputPackets ;
-    private Long acctOutputPackets ;
+    private long acctSessionTime ;
+    private long acctInputOctets ;
+    private long acctOutputOctets  ;
+    private long acctInputPackets ;
+    private long acctOutputPackets ;
 	//<connect info, Set<acct unique id>>
     private Map<String, Set<String>> connInfoMap;
   
 
 
 	public RptContent() {
-    	acctSessionTime = new Long(0);
-    	acctInputOctets = new Long(0);
-    	acctOutputOctets = new Long(0);
-    	acctInputPackets = new Long(0);
-    	acctOutputPackets = new Long(0);
-    	callingStationIdSet = new HashSet<String>();
-    	userNameSet = new HashSet<String>();
-    	connInfoMap = new HashMap<String,Set<String>>();
+    	acctSessionTime = 0;
+    	acctInputOctets = 0;
+    	acctOutputOctets = 0;
+    	acctInputPackets = 0;
+    	acctOutputPackets = 0;
+    	callingStationIdSet = new DBHashSet<String>();
+    	userNameSet = new DBHashSet<String>();
+    	connInfoMap = new THashMap<String,Set<String>>();
 	}
 
 	  public Map<String, Set<String>> getConnInfoMap() {
@@ -50,34 +52,34 @@ public class RptContent {
 	public void setCallingStationIdSet(Set<String> callingStationIdSet) {
 		this.callingStationIdSet = callingStationIdSet;
 	}
-	public Long getAcctSessionTime() {
+	public long getAcctSessionTime() {
 		return acctSessionTime;
 	}
-	public void setAcctSessionTime(Long acctSessionTime) {
+	public void setAcctSessionTime(long acctSessionTime) {
 		this.acctSessionTime = acctSessionTime;
 	}
-	public Long getAcctInputOctets() {
+	public long getAcctInputOctets() {
 		return acctInputOctets;
 	}
-	public void setAcctInputOctets(Long acctInputOctets) {
+	public void setAcctInputOctets(long acctInputOctets) {
 		this.acctInputOctets = acctInputOctets;
 	}
-	public Long getAcctOutputOctets() {
+	public long getAcctOutputOctets() {
 		return acctOutputOctets;
 	}
-	public void setAcctOutputOctets(Long acctOutputOctets) {
+	public void setAcctOutputOctets(long acctOutputOctets) {
 		this.acctOutputOctets = acctOutputOctets;
 	}
-	public Long getAcctInputPackets() {
+	public long getAcctInputPackets() {
 		return acctInputPackets;
 	}
-	public void setAcctInputPackets(Long acctInputPackets) {
+	public void setAcctInputPackets(long acctInputPackets) {
 		this.acctInputPackets = acctInputPackets;
 	}
-	public Long getAcctOutputPackets() {
+	public long getAcctOutputPackets() {
 		return acctOutputPackets;
 	}
-	public void setAcctOutputPackets(Long acctOutputPackets) {
+	public void setAcctOutputPackets(long acctOutputPackets) {
 		this.acctOutputPackets = acctOutputPackets;
 	}
 
